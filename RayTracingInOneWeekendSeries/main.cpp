@@ -3,7 +3,9 @@
 #include "colour.h"
 
 colour ray_colour(const ray& r) {
-    return colour(0.0f);
+    vec3 unit_direction = normalize(r.Direction());
+    float a = 0.5f * (unit_direction.y() + 1.0f); // -1, 1 to 0, 1
+    return lerp(colour(1.0f), colour(0.5f, 0.7f, 1.0f), a);
 }
 
 int main()
