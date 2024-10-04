@@ -47,7 +47,6 @@ public:
 
 // Aliases
 using point3 = vec3;
-using colour3 = vec3;
 
 // Utility functions
 inline std::ostream& operator<<(std::ostream& out, const vec3& v) {
