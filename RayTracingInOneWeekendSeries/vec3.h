@@ -93,6 +93,6 @@ inline vec3 normalize(const vec3& v) {
 	return v / v.length();
 }
 
-vec3 lerp(const vec3& start, const vec3& end, float t) {
+inline vec3 lerp(const vec3& start, const vec3& end, float t) {
 	return (1.0f - t) * start + t * end;
 }
