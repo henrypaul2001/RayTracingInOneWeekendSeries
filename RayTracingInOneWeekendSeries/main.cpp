@@ -2,7 +2,20 @@
 #include "ray.h"
 #include "colour.h"
 
+bool hit_sphere(const point3& center, const float radius, const ray& r) {
+    vec3 oc = center - r.Origin();
+    float a = dot(r.Direction(), r.Direction());
+    float b = -2.0f * dot(r.Direction(), oc);
+    float c = dot(oc, oc) - radius * radius;
+    float discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
 colour ray_colour(const ray& r) {
+    if (hit_sphere(point3(0.0f, 0.0f, -1.0f), 0.5f, r)) {
+        return colour(1.0f, 0.0f, 0.0f);
+    }
+
     vec3 unit_direction = normalize(r.Direction());
     float a = 0.5f * (unit_direction.y() + 1.0f); // -1, 1 to 0, 1
     return lerp(colour(1.0f), colour(0.5f, 0.7f, 1.0f), a);
