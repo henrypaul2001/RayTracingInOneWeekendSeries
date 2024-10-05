@@ -4,16 +4,16 @@
 
 float hit_sphere(const point3& center, const float radius, const ray& r) {
     vec3 oc = center - r.Origin();
-    float a = dot(r.Direction(), r.Direction());
-    float b = -2.0f * dot(r.Direction(), oc);
-    float c = dot(oc, oc) - radius * radius;
-    float discriminant = b * b - 4 * a * c;
+    float a = r.Direction().length2();
+    float h = dot(r.Direction(), oc);
+    float c = oc.length2() - radius * radius;
+    float discriminant = h * h - a * c;
 
     if (discriminant < 0) {
         return -1.0f;
     }
     else {
-        return (-b - std::sqrt(discriminant)) / (2.0f * a);
+        return (h - std::sqrt(discriminant)) / a;
     }
 }
 
