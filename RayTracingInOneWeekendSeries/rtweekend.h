@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -19,6 +20,7 @@ inline float degrees_to_radians(const float degrees) {
 }
 
 // Common headers
-#include "colour.h"
 #include "ray.h"
 #include "vec3.h"
+#include "colour.h"
+#include "interval.h"

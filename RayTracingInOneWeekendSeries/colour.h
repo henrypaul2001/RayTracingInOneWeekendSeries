@@ -1,8 +1,7 @@
 #pragma once
 #include "vec3.h"
-
 using colour = vec3;
-void WriteColour(std::ostream& out, const colour& rgbColour) {
+inline void WriteColour(std::ostream& out, const colour& rgbColour) {
 	float r = rgbColour.r();
 	float g = rgbColour.g();
 	float b = rgbColour.b();

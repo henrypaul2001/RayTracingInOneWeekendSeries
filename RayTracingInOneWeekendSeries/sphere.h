@@ -1,11 +1,10 @@
 #pragma once
 #include "hittable.h"
-
 class sphere : public hittable {
 public:
 	sphere(const point3& center, const float radius) : center(center), radius(std::fmax(0.0f, radius)) {}
 
-	bool hit(const ray& r, const float ray_tmin, const float ray_tmax, hit_record& out_hit) const override {
+	bool hit(const ray& r, const interval ray_t, hit_record& out_hit) const override {
 		vec3 oc = center - r.Origin();
 		float a = r.Direction().length2();
 		float h = dot(r.Direction(), oc);
@@ -20,9 +19,9 @@ public:
 
 		// Find the nearest root that lies in tmin, tmax range
 		float root = (h - sqrtd) / a;
-		if (root <= ray_tmin || ray_tmax <= root) {
+		if (!ray_t.surrounds(root)) {
 			root = (h + sqrtd) / a;
-			if (root <= ray_tmin || ray_tmax <= root) {
+			if (!ray_t.surrounds(root)) {
 				return false;
 			}
 		}
