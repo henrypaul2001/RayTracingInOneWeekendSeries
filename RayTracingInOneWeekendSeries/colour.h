@@ -7,9 +7,10 @@ inline void WriteColour(std::ostream& out, const colour& rgbColour) {
 	float b = rgbColour.b();
 
 	// Translate from 0, 1 to 0, 255
-	int rbyte = int(255.999 * r);
-	int gbyte = int(255.999 * g);
-	int bbyte = int(255.999 * b);
+	static const interval intensity = interval(0.000f, 0.999f);
+	int rbyte = int(255.999 * intensity.clamp(r));
+	int gbyte = int(255.999 * intensity.clamp(g));
+	int bbyte = int(255.999 * intensity.clamp(b));
 
 	// Write to stream
 	out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';

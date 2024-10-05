@@ -9,5 +9,10 @@ public:
 	float size() const { return max - min; }
 	bool contains(const float x) const { return min <= x && x <= max; }
 	bool surrounds(const float x) const { return min < x && x < max; }
+	float clamp(const float x) const { 
+		if (x < min) { return min; }
+		if (x > max) { return max; }
+		return x;
+	}
 	static const interval empty, universe;
 };
