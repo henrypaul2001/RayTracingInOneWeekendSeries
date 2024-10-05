@@ -29,7 +29,8 @@ public:
 
 		out_hit.t = root;
 		out_hit.p = r.at(out_hit.t);
-		out_hit.normal = (out_hit.p - center) / radius;
+		vec3 outward_normal = (out_hit.p - center) / radius;
+		out_hit.set_face_normal(r, outward_normal);
 
 		return true;
 	}
