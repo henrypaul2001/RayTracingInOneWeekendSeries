@@ -2,18 +2,26 @@
 #include "ray.h"
 #include "colour.h"
 
-bool hit_sphere(const point3& center, const float radius, const ray& r) {
+float hit_sphere(const point3& center, const float radius, const ray& r) {
     vec3 oc = center - r.Origin();
     float a = dot(r.Direction(), r.Direction());
     float b = -2.0f * dot(r.Direction(), oc);
     float c = dot(oc, oc) - radius * radius;
     float discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+
+    if (discriminant < 0) {
+        return -1.0f;
+    }
+    else {
+        return (-b - std::sqrt(discriminant)) / (2.0f * a);
+    }
 }
 
 colour ray_colour(const ray& r) {
-    if (hit_sphere(point3(0.0f, 0.0f, -1.0f), 0.5f, r)) {
-        return colour(1.0f, 0.0f, 0.0f);
+    float t = hit_sphere(point3(0.0f, 0.0f, -1.0f), 0.5f, r);
+    if (t > 0.0f) {
+        vec3 N = normalize(r.at(t) - vec3(0.0f, 0.0f, -1.0f));
+        return 0.5f * colour(N.x() + 1.0f, N.y() + 1.0f, N.z() + 1.0f);
     }
 
     vec3 unit_direction = normalize(r.Direction());
