@@ -1,5 +1,6 @@
 #pragma once
 #include "vec3.h"
+#include "interval.h"
 using colour = vec3;
 inline void WriteColour(std::ostream& out, const colour& rgbColour) {
 	float r = rgbColour.r();
