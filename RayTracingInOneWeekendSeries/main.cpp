@@ -1,6 +1,4 @@
-#include <iostream>
-#include "ray.h"
-#include "colour.h"
+#include "rtweekend.h"
 
 float hit_sphere(const point3& center, const float radius, const ray& r) {
     vec3 oc = center - r.Origin();
