@@ -63,7 +63,9 @@ public:
 		bool cannot_refract = ri * sin_theta > 1.0f;
 
 		vec3 direction;
-		if (cannot_refract) { direction = reflect(unit_direction, rec.normal); }
+		if (cannot_refract || reflectance(cos_theta, ri) > random_double()) { 
+			direction = reflect(unit_direction, rec.normal); 
+		}
 		else { direction = refract(unit_direction, rec.normal, ri); }
 
 		scattered = ray(rec.p, direction);
@@ -72,4 +74,11 @@ public:
 
 private:
 	float refraction_index;
+
+	static float reflectance(float cosine, float refraction_index) {
+		// Schlick's reflectance approximation
+		float r0 = (1.0f - refraction_index) / (1.0f + refraction_index);
+		r0 = r0 * r0;
+		return r0 + (1.0f - r0) * std::pow((1 - cosine), 5.0f);
+	}
 };
