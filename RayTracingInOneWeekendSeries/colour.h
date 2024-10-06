@@ -2,10 +2,18 @@
 #include "vec3.h"
 #include "interval.h"
 using colour = vec3;
+
+inline float linear_to_gamma(float linear_component) { if (linear_component > 0.0f) { return std::sqrt(linear_component); } else { return 0.0f; } }
+
 inline void WriteColour(std::ostream& out, const colour& rgbColour) {
 	float r = rgbColour.r();
 	float g = rgbColour.g();
 	float b = rgbColour.b();
+
+	// Gamma correction
+	r = linear_to_gamma(r);
+	g = linear_to_gamma(g);
+	b = linear_to_gamma(b);
 
 	// Translate from 0, 1 to 0, 255
 	static const interval intensity = interval(0.000f, 0.999f);
