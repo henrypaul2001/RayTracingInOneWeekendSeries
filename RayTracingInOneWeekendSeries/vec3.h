@@ -41,6 +41,9 @@ public:
 
 	float length2() const { return e[0] * e[0] + e[1] * e[1] + e[2] * e[2]; }
 	float length() const { return std::sqrt(length2()); }
+
+	static vec3 random() { return vec3(random_double(), random_double(), random_double()); }
+	static vec3 random(const float min, const float max) { return vec3(random_double(min, max), random_double(min, max), random_double(min, max)); }
 };
 
 // Aliases
@@ -89,6 +92,26 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 
 inline vec3 normalize(const vec3& v) {
 	return v / v.length();
+}
+
+inline vec3 random_unit_vector() {
+	while (true) {
+		vec3 p = vec3::random(-1.0f, 1.0f);
+		double length2 = p.length2();
+		if (1e-160 < length2 && length2 <= 1.0) {
+			return p / sqrt(length2);
+		}
+	}
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal) {
+	vec3 on_unit_sphere = random_unit_vector();
+	if (dot(on_unit_sphere, normal) > 0.0f) {
+		return on_unit_sphere;
+	}
+	else {
+		return -on_unit_sphere;
+	}
 }
 
 inline vec3 lerp(const vec3& start, const vec3& end, float t) {
