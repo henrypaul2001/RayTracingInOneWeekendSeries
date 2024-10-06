@@ -11,8 +11,8 @@ int main()
     // Materials
     auto material_ground = make_shared<lambertian>(colour(0.8f, 0.8f, 0.0f));
     auto material_center = make_shared<lambertian>(colour(0.1f, 0.2f, 0.5f));
-    auto material_left = make_shared<metal>(colour(0.8f));
-    auto material_right = make_shared<metal>(colour(0.8f, 0.6f, 0.2f));
+    auto material_left = make_shared<metal>(colour(0.8f), 0.3f);
+    auto material_right = make_shared<metal>(colour(0.8f, 0.6f, 0.2f), 1.0f);
 
     // World
     hittable_list world;
