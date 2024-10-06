@@ -46,3 +46,22 @@ private:
 	colour albedo;
 	float fuzz;
 };
+
+class dielectric : public material {
+public:
+	dielectric(float refraction_index) : refraction_index(refraction_index) {}
+
+	bool scatter(const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered) const override {
+		attenuation = colour(1.0f);
+		float ri = rec.front_face ? (1.0f / refraction_index) : refraction_index;
+
+		vec3 unit_direction = normalize(r_in.Direction());
+		vec3 refracted = refract(unit_direction, rec.normal, ri);
+
+		scattered = ray(rec.p, refracted);
+		return true;
+	}
+
+private:
+	float refraction_index;
+};
