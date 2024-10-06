@@ -11,7 +11,8 @@ int main()
     // Materials
     auto material_ground = make_shared<lambertian>(colour(0.8f, 0.8f, 0.0f));
     auto material_center = make_shared<lambertian>(colour(0.1f, 0.2f, 0.5f));
-    auto material_left = make_shared<dielectric>(1.0f / 1.33f);
+    auto material_left = make_shared<dielectric>(1.5f);
+    auto material_bubble = make_shared<dielectric>(1.0f / 1.5f);
     auto material_right = make_shared<metal>(colour(0.8f, 0.6f, 0.2f), 1.0f);
 
     // World
@@ -19,6 +20,7 @@ int main()
     world.add(make_shared<sphere>(point3(0.0f, -100.5f, -1.0f), 100.0f, material_ground));
     world.add(make_shared<sphere>(point3(0.0f, 0.0f, -1.2f), 0.5f, material_center));
     world.add(make_shared<sphere>(point3(-1.0f, 0.0f, -1.0f), 0.5f, material_left));
+    world.add(make_shared<sphere>(point3(-1.0f, 0.0f, -1.0f), 0.4f, material_bubble));
     world.add(make_shared<sphere>(point3(1.0f, 0.0f, -1.0f), 0.5f, material_right));
 
     // Camera
