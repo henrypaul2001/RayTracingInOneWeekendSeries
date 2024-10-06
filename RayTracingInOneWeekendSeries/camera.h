@@ -6,6 +6,7 @@ public:
 	float aspect_ratio = 1.0f;	// Ratio of image width over height
 	int image_width = 100;	    // Rendered image width in pixel count
 	int samples_per_pixel = 10; // Number of random samples per pixel
+	int max_bounces = 10;		// Maximum times a ray can bounce off of geometry
 
 	void render(const hittable& world) {
 		initialize();
@@ -17,7 +18,7 @@ public:
 				colour pixel_colour = colour(0.0f);
 				for (int sample = 0; sample < samples_per_pixel; sample++) {
 					ray r = get_ray(i, j);
-					pixel_colour += ray_colour(r, world);
+					pixel_colour += ray_colour(r, max_bounces, world);
 				}
 				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
 			}
@@ -78,10 +79,15 @@ private:
 		return vec3(random_double() - 0.5f, random_double() - 0.5f, 0.0f);
 	}
 
-	colour ray_colour(const ray& r, const hittable& world) const {
+	colour ray_colour(const ray& r, const int depth, const hittable& world) const {
+		if (depth <= 0) {
+			return colour(0.0f);
+		}
+
 		hit_record rec;
 		if (world.hit(r, interval(0.0f, infinity), rec)) {
-			return 0.5f * (rec.normal + colour(1.0f));
+			vec3 direction = random_on_hemisphere(rec.normal);
+			return 0.5f * ray_colour(ray(rec.p, direction), depth - 1, world);
 		}
 
 		vec3 unit_direction = normalize(r.Direction());
