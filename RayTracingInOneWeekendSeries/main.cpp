@@ -29,6 +29,7 @@ int main()
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.vfov = 90.0f;
 
     // Render
     cam.render(world);

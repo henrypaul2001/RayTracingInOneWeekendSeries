@@ -9,6 +9,8 @@ public:
 	int samples_per_pixel = 10; // Number of random samples per pixel
 	int max_bounces = 10;		// Maximum times a ray can bounce off of geometry
 
+	float vfov = 90.0f; // Vertical field of view
+
 	void render(const hittable& world) {
 		initialize();
 
@@ -46,7 +48,9 @@ private:
 
 		// Determine viewport dimensions
 		auto focal_length = 1.0;
-		auto viewport_height = 2.0;
+		float theta = degrees_to_radians(vfov);
+		float h = std::tan(theta / 2.0f);
+		auto viewport_height = 2.0 * h * focal_length;
 		auto viewport_width = viewport_height * (double(image_width) / image_height);
 
 		// Calculate the vectors across viewport edges
