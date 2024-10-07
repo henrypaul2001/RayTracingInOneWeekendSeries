@@ -6,6 +6,8 @@
 #include "sphere.h"
 #include "material.h"
 
+#include <chrono>
+
 int main()
 {
     hittable_list world;
@@ -54,8 +56,8 @@ int main()
 
     camera cam;
     cam.aspect_ratio = 16.0f / 9.0f;
-    cam.image_width = 1280;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 200;
+    cam.samples_per_pixel = 50;
     cam.max_bounces = 50;
 
     cam.vfov = 20;
@@ -97,8 +99,30 @@ int main()
 
     */
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Render
     cam.render(world);
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+
+    // Extract hours, minutes, and seconds from the total duration
+    auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
+    duration -= hours;
+    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
+    duration -= minutes;
+    auto seconds = duration; // Remaining seconds
+
+    // Display the time elapsed
+    std::clog << "Time elapsed: "
+        << hours.count() << " hours, "
+        << minutes.count() << " minutes, "
+        << seconds.count() << " seconds";
+
+    char input = ' ';
+    std::cin >> input;
 
     return 0;
 }

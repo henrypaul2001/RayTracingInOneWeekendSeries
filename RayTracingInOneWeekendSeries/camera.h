@@ -33,7 +33,7 @@ public:
 			}
 		}
 
-		std::clog << "\rDone.           \n";
+		std::clog << "\rDone.					\n";
 	}
 
 private:
