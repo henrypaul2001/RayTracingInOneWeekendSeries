@@ -9,7 +9,10 @@ public:
 	int samples_per_pixel = 10; // Number of random samples per pixel
 	int max_bounces = 10;		// Maximum times a ray can bounce off of geometry
 
-	float vfov = 90.0f; // Vertical field of view
+	float vfov = 90.0f;						   // Vertical field of view
+	point3 lookfrom = point3(0.0f);			   // Camera position
+	point3 lookat = point3(0.0f, 0.0f, -1.0f); // Point camera is looking at
+	vec3 vup = vec3(0.0f, 1.0f, 0.0f);		   // Camera relative up direction
 
 	void render(const hittable& world) {
 		initialize();
@@ -37,6 +40,7 @@ private:
 	point3 pixel00_loc;			// Location of pixel 0, 0
 	vec3 pixel_delta_u;			// Offset to pixel to the right
 	vec3 pixel_delta_v;			// Offset to pixel below
+	vec3 u, v, w;				// Camera frame basis vectors
 
 	void initialize() {
 		image_height = int(image_width / aspect_ratio);
@@ -44,25 +48,30 @@ private:
 
 		pixel_samples_scale = 1.0f / samples_per_pixel;
 
-		center = point3(0, 0, 0);
+		center = lookfrom;
 
 		// Determine viewport dimensions
-		auto focal_length = 1.0;
+		auto focal_length = (lookfrom - lookat).length();
 		float theta = degrees_to_radians(vfov);
 		float h = std::tan(theta / 2.0f);
 		auto viewport_height = 2.0 * h * focal_length;
 		auto viewport_width = viewport_height * (double(image_width) / image_height);
 
+		// Calculate u, v, w unit basis vectors for camera coordinate frame
+		w = normalize(lookfrom - lookat);
+		u = normalize(cross(vup, w));
+		v = cross(w, u);
+
 		// Calculate the vectors across viewport edges
-		auto viewport_u = vec3(viewport_width, 0, 0);
-		auto viewport_v = vec3(0, -viewport_height, 0);
+		auto viewport_u = viewport_width * u;
+		auto viewport_v = viewport_height * -v;
 
 		// Pixel delta vectors
 		pixel_delta_u = viewport_u / image_width;
 		pixel_delta_v = viewport_v / image_height;
 
 		// Upper left pixel location
-		auto viewport_upper_left = center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+		auto viewport_upper_left = center - (focal_length * w) - viewport_u / 2.0f - viewport_v / 2.0f;
 		pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 	}
 

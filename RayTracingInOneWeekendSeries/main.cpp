@@ -29,7 +29,11 @@ int main()
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
-    cam.vfov = 90.0f;
+
+    cam.vfov = 20.0f;
+    cam.lookfrom = point3(-2.0f, 2.0f, 1.0f);
+    cam.lookat = point3(0.0f, 0.0f, -1.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     // Render
     cam.render(world);
