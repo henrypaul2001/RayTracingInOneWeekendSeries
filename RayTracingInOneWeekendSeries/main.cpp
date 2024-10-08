@@ -27,7 +27,8 @@ int main()
                     // diffuse
                     colour albedo = colour::random() * colour::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    world.add(make_shared<sphere>(center, 0.2f, sphere_material));
+                    point3 center2 = center + vec3(0.0f, random_double(0.0, 0.5), 0.0f);
+                    world.add(make_shared<sphere>(center, center2, 0.2f, sphere_material));
                 }
                 else if (choose_mat < 0.95) {
                     // metal
@@ -56,8 +57,8 @@ int main()
 
     camera cam;
     cam.aspect_ratio = 16.0f / 9.0f;
-    cam.image_width = 200;
-    cam.samples_per_pixel = 50;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
 
     cam.vfov = 20;
@@ -121,8 +122,7 @@ int main()
         << minutes.count() << " minutes, "
         << seconds.count() << " seconds";
 
-    char input = ' ';
-    std::cin >> input;
+    std::cin;
 
     return 0;
 }
