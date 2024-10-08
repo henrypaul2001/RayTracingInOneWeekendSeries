@@ -1,8 +1,8 @@
 #pragma once
 
-#include "interval.h"
 #include "vec3.h"
 #include "ray.h"
+#include "interval.h"
 
 class aabb {
 public:
@@ -53,4 +53,15 @@ public:
 		}
 		return true;
 	}
+
+	int longest_axis() const {
+		if (x.size() > y.size()) {
+			return x.size() > z.size() ? 0 : 2;
+		}
+		else {
+			return y.size() > z.size() ? 1 : 2;
+		}
+	}
+
+	static const aabb empty, universe;
 };
