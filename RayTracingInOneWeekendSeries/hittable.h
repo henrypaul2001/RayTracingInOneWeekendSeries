@@ -1,5 +1,6 @@
 #pragma once
 #include "rtweekend.h"
+#include "aabb.h"
 
 class material;
 struct hit_record {
@@ -22,4 +23,5 @@ class hittable {
 public:
 	virtual ~hittable() = default;
 	virtual bool hit(const ray& r, const interval ray_t, hit_record& out_hit) const = 0;
+	virtual aabb bounding_box() const = 0;
 };

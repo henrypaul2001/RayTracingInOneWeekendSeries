@@ -3,10 +3,19 @@
 class sphere : public hittable {
 public:
 	// Stationary sphere
-	sphere(const point3& static_center, const float radius, shared_ptr<material> mat) : center(static_center, vec3(0.0f)), radius(std::fmax(0.0f, radius)), mat(mat) {}
+	sphere(const point3& static_center, const float radius, shared_ptr<material> mat) : center(static_center, vec3(0.0f)), radius(std::fmax(0.0f, radius)), mat(mat) {
+		vec3 rvec = vec3(radius);
+
+		bbox = aabb(static_center - rvec, static_center + rvec);
+	}
 
 	// Moving sphere
-	sphere(const point3& center1, const point3& center2, const float radius, shared_ptr<material> mat) : center(center1, center2 - center1), radius(std::fmax(0.0f, radius)), mat(mat) {}
+	sphere(const point3& center1, const point3& center2, const float radius, shared_ptr<material> mat) : center(center1, center2 - center1), radius(std::fmax(0.0f, radius)), mat(mat) {
+		vec3 rvec = vec3(radius);
+		aabb box1 = aabb(center.at(0) - rvec, center.at(0) + rvec);
+		aabb box2 = aabb(center.at(1) - rvec, center.at(1) + rvec);
+		bbox = aabb(box1, box2);
+	}
 
 	bool hit(const ray& r, const interval ray_t, hit_record& out_hit) const override {
 		point3 current_center = center.at(r.time());
@@ -40,8 +49,11 @@ public:
 		return true;
 	}
 
+	aabb bounding_box() const override { return bbox; }
+
 private:
 	ray center; // Acts as a path for animated spheres
 	float radius;
 	shared_ptr<material> mat;
+	aabb bbox;
 };
