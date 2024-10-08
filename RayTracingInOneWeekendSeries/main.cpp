@@ -7,6 +7,7 @@
 #include "material.h"
 
 #include <chrono>
+#include "bvh_node.h"
 
 int main()
 {
@@ -54,6 +55,8 @@ int main()
 
     auto material3 = make_shared<metal>(colour(0.7f, 0.6f, 0.5f), 0.0f);
     world.add(make_shared<sphere>(point3(4.0f, 1.0f, 0.0f), 1.0f, material3));
+
+    world = hittable_list(make_shared<bvh_node>(world));
 
     camera cam;
     cam.aspect_ratio = 16.0f / 9.0f;
@@ -122,7 +125,8 @@ int main()
         << minutes.count() << " minutes, "
         << seconds.count() << " seconds";
 
-    std::cin;
+    char c;
+    std::cin >> c;
 
     return 0;
 }

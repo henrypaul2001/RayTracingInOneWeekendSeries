@@ -30,6 +30,11 @@ inline double random_double(const double min, const double max) {
 	return min + (max - min) * random_double();
 }
 
+inline int random_int(const int min, const int max) {
+	// Returns a random integer min to max
+	return int(random_double(min, max + 1));
+}
+
 // Common headers
 #include "ray.h"
 #include "vec3.h"

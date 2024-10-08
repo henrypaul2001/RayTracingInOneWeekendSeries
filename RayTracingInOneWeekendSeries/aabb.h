@@ -39,19 +39,18 @@ public:
 			float t1 = (ax.max - ray_orig[axis]) * adinv;
 
 			if (t0 < t1) {
-				if (t0 > ray_t.min) { ray_t.min = t0; }
-				if (t1 < ray_t.max) { ray_t.max = t1; }
+				if (t0 > ray_t.min) ray_t.min = t0;
+				if (t1 < ray_t.max) ray_t.max = t1;
 			}
 			else {
-				if (t1 > ray_t.min) { ray_t.min = t1; }
-				if (t0 < ray_t.max) { ray_t.max = t0; }
+				if (t1 > ray_t.min) ray_t.min = t1;
+				if (t0 < ray_t.max) ray_t.max = t0;
 			}
 
 			if (ray_t.max <= ray_t.min) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 };
