@@ -118,14 +118,34 @@ void CheckeredSpheres(hittable_list& world, camera& cam) {
     cam.defocus_angle = 0.0f;
 }
 
+void Earth(hittable_list& world, camera& cam) {
+    auto earth_texture = make_shared<image_texture>("images/earthmap.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto globe = make_shared<sphere>(point3(0.0f), 2.0f, earth_surface);
+
+    world.add(globe);
+
+    cam.aspect_ratio = 16.0f / 9.0f;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_bounces = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(0.0f, 4.0f, 12.0f);
+    cam.lookat = point3(0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    CheckeredSpheres(world, cam);
+    Earth(world, cam);
 
-    cam.image_width = 1080;
+    cam.image_width = 1920;
 
     auto start = std::chrono::high_resolution_clock::now();
 

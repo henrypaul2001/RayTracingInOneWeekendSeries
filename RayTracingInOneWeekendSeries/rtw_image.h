@@ -26,10 +26,10 @@ public:
         // width() and height() will return 0.
 
         auto filename = std::string(image_filename);
-        auto imagedir = getenv("RTW_IMAGES");
+        //auto imagedir = _dupenv_s("RTW_IMAGES");
 
         // Hunt for the image file in some likely locations.
-        if (imagedir && load(std::string(imagedir) + "/" + image_filename)) return;
+        //if (imagedir && load(std::string(imagedir) + "/" + image_filename)) return;
         if (load(filename)) return;
         if (load("images/" + filename)) return;
         if (load("../images/" + filename)) return;
