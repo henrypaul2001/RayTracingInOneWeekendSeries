@@ -9,12 +9,9 @@
 #include <chrono>
 #include "bvh_node.h"
 
-int main()
-{
-    hittable_list world;
-
-    auto checker = make_shared<checker_texture>(0.32f, colour(0.2f, 0.3f, 0.1f), colour(0.9f));
-    world.add(make_shared<sphere>(point3(0.0f, -1000.0f, 0.0f), 1000.0f, make_shared<lambertian>(checker)));
+void bouncing_spheres(hittable_list& world, camera& cam) {
+    auto ground_material = make_shared<lambertian>(colour(0.5f));
+    world.add(make_shared<sphere>(point3(0, -1000.0f, 0), 1000.0f, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -58,7 +55,6 @@ int main()
 
     world = hittable_list(make_shared<bvh_node>(world));
 
-    camera cam;
     cam.aspect_ratio = 16.0f / 9.0f;
     cam.image_width = 1080;
     cam.samples_per_pixel = 50;
@@ -71,8 +67,9 @@ int main()
 
     cam.defocus_angle = 0.8f;
     cam.focus_dist = 10.0f;
+}
 
-    /*
+void SphereLine(hittable_list& world, camera& cam) {
     // Materials
     auto material_ground = make_shared<lambertian>(colour(0.8f, 0.8f, 0.0f));
     auto material_center = make_shared<lambertian>(colour(0.1f, 0.2f, 0.5f));
@@ -100,8 +97,14 @@ int main()
 
     cam.defocus_angle = 10.0f;
     cam.focus_dist = 3.4f;
+}
 
-    */
+int main()
+{
+    camera cam;
+    hittable_list world;
+    
+    SphereLine(world, cam);
 
     auto start = std::chrono::high_resolution_clock::now();
 
