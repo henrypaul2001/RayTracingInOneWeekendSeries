@@ -1,5 +1,6 @@
 #pragma once
 #include "hittable.h"
+#include "texture.h"
 
 class material {
 public:
@@ -12,7 +13,8 @@ public:
 
 class lambertian : public material {
 public:
-	lambertian(const colour& albedo) : albedo(albedo) {}
+	lambertian(const colour& albedo) : tex(make_shared<solid_colour>(albedo)) {}
+	lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
 	bool scatter(const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered) const override {
 		vec3 scatter_direction = rec.normal + random_unit_vector();
@@ -22,12 +24,12 @@ public:
 		}
 
 		scattered = ray(rec.p, scatter_direction, r_in.time());
-		attenuation = albedo;
+		attenuation = tex->value(rec.u, rec.v, rec.p);
 		return true;
 	}
 
 private:
-	colour albedo;
+	shared_ptr<texture> tex;
 };
 
 class metal : public material {

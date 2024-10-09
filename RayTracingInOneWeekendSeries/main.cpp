@@ -13,8 +13,8 @@ int main()
 {
     hittable_list world;
 
-    auto ground_material = make_shared<lambertian>(colour(0.5f));
-    world.add(make_shared<sphere>(point3(0.0f, -1000.0f, 0.0f), 1000.0f, ground_material));
+    auto checker = make_shared<checker_texture>(0.32f, colour(0.2f, 0.3f, 0.1f), colour(0.9f));
+    world.add(make_shared<sphere>(point3(0.0f, -1000.0f, 0.0f), 1000.0f, make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -60,8 +60,8 @@ int main()
 
     camera cam;
     cam.aspect_ratio = 16.0f / 9.0f;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 100;
+    cam.image_width = 1080;
+    cam.samples_per_pixel = 50;
     cam.max_bounces = 50;
 
     cam.vfov = 20;
