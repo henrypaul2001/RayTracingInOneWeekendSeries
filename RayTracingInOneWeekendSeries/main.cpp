@@ -99,12 +99,33 @@ void SphereLine(hittable_list& world, camera& cam) {
     cam.focus_dist = 3.4f;
 }
 
+void CheckeredSpheres(hittable_list& world, camera& cam) {
+    auto checker = make_shared<checker_texture>(0.32f, colour(0.2f, 0.3f, 0.1f), colour(0.9f));
+
+    world.add(make_shared<sphere>(point3(0.0f, -10.0f, 0.0f), 10.0f, make_shared<lambertian>(checker)));
+    world.add(make_shared<sphere>(point3(0.0f, 10.0f, 0.0f), 10.0f, make_shared<lambertian>(checker)));
+
+    cam.aspect_ratio = 16.0f / 9.0f;
+    cam.image_width = 500;
+    cam.samples_per_pixel = 100;
+    cam.max_bounces = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(13.0f, 2.0f, 3.0f);
+    cam.lookat = point3(0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0.0f;
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    SphereLine(world, cam);
+    CheckeredSpheres(world, cam);
+
+    cam.image_width = 1080;
 
     auto start = std::chrono::high_resolution_clock::now();
 
