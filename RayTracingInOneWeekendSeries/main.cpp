@@ -5,7 +5,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "material.h"
-#include "quad.h"
+#include "triangle.h"
 
 #include <chrono>
 #include "bvh_node.h"
@@ -185,12 +185,39 @@ void Quads(hittable_list& world, camera& cam) {
     cam.defocus_angle = 0;
 }
 
+void Primitives2D(hittable_list& world, camera& cam) {
+    // Materials
+    auto left_red = make_shared<lambertian>(colour(1.0f, 0.2f, 0.2f));
+    auto back_green = make_shared<lambertian>(colour(0.2f, 1.0f, 0.2f));
+    auto right_blue = make_shared<lambertian>(colour(0.2f, 0.2f, 1.0f));
+    auto upper_orange = make_shared<lambertian>(colour(1.0f, 0.5f, 0.0f));
+    auto lower_teal = make_shared<lambertian>(colour(0.2f, 0.8f, 0.8f));
+
+    world.add(make_shared<quad>(point3(-3.0f, -2.0f, 5.0f), vec3(0.0f, 0.0f, -4.0f), vec3(0.0f, 4.0f, 0.0f), left_red));
+    world.add(make_shared<triangle>(point3(-2.0f, -2.0f, 0.0f), vec3(4.0f, 0.0f, 0.0f), vec3(2.0f, 4.0f, 0.0f), back_green));
+
+
+    world.add(make_shared<quad>(point3(-2.5f, -3.0f, 5.0f), vec3(4.0f, 0.0f, 0.0f), vec3(2.5f, 0.0f, -4.0f), lower_teal));
+
+    cam.aspect_ratio = 1.0f;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_bounces = 50;
+
+    cam.vfov = 80;
+    cam.lookfrom = point3(0.0f, 0.0f, 9.0f);
+    cam.lookat = point3(0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    Quads(world, cam);
+    Primitives2D(world, cam);
 
     //cam.image_width = 1920;
 
