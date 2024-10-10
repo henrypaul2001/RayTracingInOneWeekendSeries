@@ -14,11 +14,28 @@ public:
 	}
 
 	float noise(const point3& p) const {
-		int i = int(4 * p.x()) & 255;
-		int j = int(4 * p.y()) & 255;
-		int k = int(4 * p.z()) & 255;
+		auto u = p.x() - std::floor(p.x());
+		auto v = p.y() - std::floor(p.y());
+		auto w = p.z() - std::floor(p.z());
 
-		return randFloat[perm_x[i] ^ perm_y[j] ^ perm_z[k]];
+		int i = int(std::floor(p.x()));
+		int j = int(std::floor(p.y()));
+		int k = int(std::floor(p.z()));
+		float c[2][2][2];
+
+		for (int di = 0; di < 2; di++) {
+			for (int dj = 0; dj < 2; dj++) {
+				for (int dk = 0; dk < 2; dk++) {
+					c[di][dj][dk] = randFloat[
+						perm_x[(i + di) & 255] ^
+						perm_y[(j + dj) & 255] ^
+						perm_z[(k + dk) & 255]
+					];
+				}
+			}
+		}
+
+		return trilinear_interp(c, u, v, w);
 	}
 
 private:
@@ -42,5 +59,21 @@ private:
 			p[i] = p[target];
 			p[target] = tmp;
 		}
+	}
+
+	static float trilinear_interp(float c[2][2][2], float u, float v, float w) {
+		auto accum = 0.0f;
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 2; j++) {
+				for (int k = 0; k < 2; k++) {
+					accum += (i * u + (1 - i) * (1 - u))
+							* (j * v + (1 - j) * (1 - v))
+							* (k * w + (1 - k) * (1 - w))
+							* c[i][j][k];
+				}
+			}
+		}
+
+		return accum;
 	}
 };

@@ -163,7 +163,7 @@ int main()
     
     PerlinSpheres(world, cam);
 
-    cam.image_width = 1920;
+    //cam.image_width = 1920;
 
     auto start = std::chrono::high_resolution_clock::now();
 
