@@ -18,6 +18,10 @@ public:
 		auto v = p.y() - std::floor(p.y());
 		auto w = p.z() - std::floor(p.z());
 
+		u = u * u * (3 - 2 * u);
+		v = v * v * (3 - 2 * v);
+		w = w * w * (3 - 2 * w);
+
 		int i = int(std::floor(p.x()));
 		int j = int(std::floor(p.y()));
 		int k = int(std::floor(p.z()));
@@ -48,8 +52,8 @@ private:
 	static void perlin_generate_perm(int* p) {
 		for (int i = 0; i < point_count; i++) {
 			p[i] = i;
-			permute(p, point_count);
 		}
+		permute(p, point_count);
 	}
 
 	static void permute(int* p, int n) {
