@@ -52,7 +52,7 @@ public:
 		return true;
 	}
 
-private:
+protected:
 	point3 Q;
 	vec3 u, v;
 	vec3 w;

@@ -6,6 +6,7 @@
 #include "sphere.h"
 #include "material.h"
 #include "triangle.h"
+#include "disk.h"
 
 #include <chrono>
 #include "bvh_node.h"
@@ -195,7 +196,7 @@ void Primitives2D(hittable_list& world, camera& cam) {
 
     world.add(make_shared<quad>(point3(-3.0f, -2.0f, 5.0f), vec3(0.0f, 0.0f, -4.0f), vec3(0.0f, 4.0f, 0.0f), left_red));
     world.add(make_shared<triangle>(point3(-2.0f, -2.0f, 0.0f), vec3(4.0f, 0.0f, 0.0f), vec3(2.0f, 4.0f, 0.0f), back_green));
-
+    world.add(make_shared<disk>(point3(3.0f, -1.0f, 2.0f), vec3(0.0f, 0.0f, 3.5f), vec3(-2.0f, 3.5f, 1.0f), right_blue));
 
     world.add(make_shared<quad>(point3(-2.5f, -3.0f, 5.0f), vec3(4.0f, 0.0f, 0.0f), vec3(2.5f, 0.0f, -4.0f), lower_teal));
 
