@@ -18,10 +18,6 @@ public:
 		auto v = p.y() - std::floor(p.y());
 		auto w = p.z() - std::floor(p.z());
 
-		//u = u * u * (3 - 2 * u);
-		//v = v * v * (3 - 2 * v);
-		//w = w * w * (3 - 2 * w);
-
 		int i = int(std::floor(p.x()));
 		int j = int(std::floor(p.y()));
 		int k = int(std::floor(p.z()));
@@ -40,6 +36,20 @@ public:
 		}
 
 		return perlin_interp(c, u, v, w);
+	}
+
+	float turb(const point3& p, const int depth) const {
+		float accum = 0.0f;
+		point3 temp_p = p;
+		float weight = 1.0f;
+
+		for (int i = 0; i < depth; i++) {
+			accum += weight * noise(temp_p);
+			weight *= 0.5f;
+			temp_p *= 2;
+		}
+
+		return std::fabs(accum);
 	}
 
 private:
