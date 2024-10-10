@@ -138,12 +138,30 @@ void Earth(hittable_list& world, camera& cam) {
     cam.defocus_angle = 0;
 }
 
+void PerlinSpheres(hittable_list& world, camera& cam) {
+    auto pertext = make_shared<noise_texture>();
+    world.add(make_shared<sphere>(point3(0.0f, -1000.0f, 0.0f), 1000.0f, make_shared<lambertian>(pertext)));
+    world.add(make_shared<sphere>(point3(0.0f, 2.0f, 0.0f), 2.0f, make_shared<lambertian>(pertext)));
+
+    cam.aspect_ratio = 16.0f / 9.0f;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_bounces = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(13.0f, 2.0f, 3.0f);
+    cam.lookat = point3(0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    Earth(world, cam);
+    PerlinSpheres(world, cam);
 
     cam.image_width = 1920;
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "rtweekend.h"
 #include "rtw_image.h"
+#include "perlin.h"
 
 class texture {
 public:
@@ -63,4 +64,16 @@ public:
 
 private:
 	rtw_image image;
+};
+
+class noise_texture : public texture {
+public:
+	noise_texture() {}
+
+	colour value(float u, float v, const point3& p) const override {
+		return colour(1.0f) * noise.noise(p);
+	}
+
+private:
+	perlin noise;
 };
