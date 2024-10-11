@@ -8,6 +8,7 @@ public:
 	int image_width = 100;	    // Rendered image width in pixel count
 	int samples_per_pixel = 10; // Number of random samples per pixel
 	int max_bounces = 10;		// Maximum times a ray can bounce off of geometry
+	colour background;			// Scene background colour
 
 	float vfov = 90.0f;						   // Vertical field of view
 	point3 lookfrom = point3(0.0f);			   // Camera position
@@ -115,19 +116,25 @@ private:
 		}
 
 		hit_record rec;
-		if (world.hit(r, interval(0.001f, infinity), rec)) {
-			ray scattered;
-			colour attenuation;
-			if (rec.mat->scatter(r, rec, attenuation, scattered)) {
-				return attenuation * ray_colour(scattered, depth - 1, world);
-			}
-			else {
-				return colour(0.0f);
-			}
+
+		if (!world.hit(r, interval(0.001f, infinity), rec)) {
+			return background;
 		}
 
-		vec3 unit_direction = normalize(r.Direction());
-		float a = 0.5f * (unit_direction.y() + 1.0f); // -1, 1 to 0, 1
-		return lerp(colour(1.0f), colour(0.5f, 0.7f, 1.0f), a);
+		ray scattered;
+		colour attenuation;
+		colour colour_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+
+		if (!rec.mat->scatter(r, rec, attenuation, scattered)) {
+			return colour_from_emission;
+		}
+
+		colour colour_from_scatter = attenuation * ray_colour(scattered, depth - 1, world);
+
+		return colour_from_emission + colour_from_scatter;
+
+		//vec3 unit_direction = normalize(r.Direction());
+		//float a = 0.5f * (unit_direction.y() + 1.0f); // -1, 1 to 0, 1
+		//return lerp(colour(1.0f), colour(0.5f, 0.7f, 1.0f), a);
 	}
 };

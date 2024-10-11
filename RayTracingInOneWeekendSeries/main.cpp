@@ -61,6 +61,7 @@ void bouncing_spheres(hittable_list& world, camera& cam) {
     cam.image_width = 1080;
     cam.samples_per_pixel = 50;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20;
     cam.lookfrom = point3(13.0f, 2.0f, 3.0f);
@@ -91,6 +92,7 @@ void SphereLine(hittable_list& world, camera& cam) {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20.0f;
     cam.lookfrom = point3(-2.0f, 2.0f, 1.0f);
@@ -111,6 +113,7 @@ void CheckeredSpheres(hittable_list& world, camera& cam) {
     cam.image_width = 500;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20;
     cam.lookfrom = point3(13.0f, 2.0f, 3.0f);
@@ -131,6 +134,7 @@ void Earth(hittable_list& world, camera& cam) {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20;
     cam.lookfrom = point3(0.0f, 4.0f, 12.0f);
@@ -149,6 +153,7 @@ void PerlinSpheres(hittable_list& world, camera& cam) {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20;
     cam.lookfrom = point3(13.0f, 2.0f, 3.0f);
@@ -177,6 +182,7 @@ void Quads(hittable_list& world, camera& cam) {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 80;
     cam.lookfrom = point3(0.0f, 0.0f, 9.0f);
@@ -204,10 +210,33 @@ void Primitives2D(hittable_list& world, camera& cam) {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_bounces = 50;
+    cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 80;
     cam.lookfrom = point3(0.0f, 0.0f, 9.0f);
     cam.lookat = point3(0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+}
+
+void SimpleLight(hittable_list& world, camera& cam) {
+    auto pertext = make_shared<noise_texture>(4);
+    world.add(make_shared<sphere>(point3(0.0f, -1000.0f, 0.0f), 1000.0f, make_shared<lambertian>(pertext)));
+    world.add(make_shared<sphere>(point3(0.0f, 2.0f, 0.0f), 2.0f, make_shared<lambertian>(pertext)));
+
+    auto difflight = make_shared<diffuse_light>(colour(4.0f));
+    world.add(make_shared<quad>(point3(3.0f, 1.0f, -2.0f), vec3(2.0f, 0.0f, 0.0f), vec3(0.0f, 2.0f, 0.0f), difflight));
+
+    cam.aspect_ratio = 16.0f / 9.0f;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_bounces = 50;
+    cam.background = colour(0.0f);
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(26.0f, 3.0f, 6.0f);
+    cam.lookat = point3(0.0f, 2.0f, 0.0f);
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
@@ -218,9 +247,9 @@ int main()
     camera cam;
     hittable_list world;
     
-    Primitives2D(world, cam);
+    SimpleLight(world, cam);
 
-    //cam.image_width = 1920;
+    cam.image_width = 1920;
 
     auto start = std::chrono::high_resolution_clock::now();
 
