@@ -226,6 +226,7 @@ void SimpleLight(hittable_list& world, camera& cam) {
     world.add(make_shared<sphere>(point3(0.0f, 2.0f, 0.0f), 2.0f, make_shared<lambertian>(pertext)));
 
     auto difflight = make_shared<diffuse_light>(colour(4.0f));
+    world.add(make_shared<sphere>(point3(0.0f, 7.0f, 0.0f), 2.0f, difflight));
     world.add(make_shared<quad>(point3(3.0f, 1.0f, -2.0f), vec3(2.0f, 0.0f, 0.0f), vec3(0.0f, 2.0f, 0.0f), difflight));
 
     cam.aspect_ratio = 16.0f / 9.0f;
