@@ -243,14 +243,44 @@ void SimpleLight(hittable_list& world, camera& cam) {
     cam.defocus_angle = 0;
 }
 
+void CornellBox(hittable_list& world, camera& cam) {
+    auto red = make_shared<lambertian>(colour(0.65f, 0.05f, 0.05f));
+    auto white = make_shared<lambertian>(colour(0.73f));
+    auto green = make_shared<lambertian>(colour(0.12f, 0.45f, 0.15f));
+    auto light = make_shared<diffuse_light>(colour(15.0f));
+
+    world.add(make_shared<quad>(point3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), green));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), red));
+    world.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), light));
+    world.add(make_shared<quad>(point3(0.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), white));
+    world.add(make_shared<quad>(point3(555.0f), vec3(-555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -555.0f), white));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
+
+    world.add(box(point3(130.0f, 0.0f, 65.0f), point3(295.0f, 165.0f, 230.0f), white));
+    world.add(box(point3(265.0f, 0.0f, 295.0f), point3(430.0f, 330.0f, 460.0f), white));
+
+    cam.aspect_ratio = 1.0f;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_bounces = 50;
+    cam.background = colour(0.0f);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(278.0f, 278.0f, -800.0f);
+    cam.lookat = point3(278.0f, 278.0f, 0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    SimpleLight(world, cam);
+    CornellBox(world, cam);
 
-    cam.image_width = 1920;
+    //cam.image_width = 1920;
 
     auto start = std::chrono::high_resolution_clock::now();
 
