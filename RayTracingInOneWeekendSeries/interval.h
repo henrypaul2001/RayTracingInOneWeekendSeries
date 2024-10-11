@@ -29,3 +29,11 @@ public:
 
 	static const interval empty, universe;
 };
+
+inline interval operator+(const interval& ival, float displacement) {
+	return interval(ival.min + displacement, ival.max + displacement);
+}
+
+inline interval operator+(float displacement, const interval& ival) {
+	return ival + displacement;
+}
