@@ -136,6 +136,7 @@
     <ClInclude Include="bvh_node.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="colour.h" />
+    <ClInclude Include="constant_medium.h" />
     <ClInclude Include="disk.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="interval.h" />
