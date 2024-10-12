@@ -21,20 +21,31 @@ public:
 	void render(const hittable& world) {
 		initialize();
 
+		colour* colours = new colour[image_width * image_height];
+
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
 		for (int j = 0; j < image_height; j++) {
 			std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+
 			for (int i = 0; i < image_width; i++) {
 				colour pixel_colour = colour(0.0f);
 				for (int sample = 0; sample < samples_per_pixel; sample++) {
 					ray r = get_ray(i, j);
 					pixel_colour += ray_colour(r, max_bounces, world);
 				}
-				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
+				//WriteColour(std::cout, pixel_samples_scale * pixel_colour);
+				colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
 			}
 		}
 
+		for (int i = 0; i < image_width * image_height; i++) {
+			WriteColour(std::cout, colours[i]);
+		}
+
 		std::clog << "\rDone.					\n";
+	
+		delete[] colours;
 	}
 
 private:
