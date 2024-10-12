@@ -7,6 +7,7 @@
 #include "material.h"
 #include "triangle.h"
 #include "disk.h"
+#include "constant_medium.h"
 
 #include <chrono>
 #include "bvh_node.h"
@@ -277,7 +278,45 @@ void CornellBox(hittable_list& world, camera& cam) {
     cam.lookat = point3(278.0f, 278.0f, 0.0f);
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
-    cam.defocus_angle = 0;
+    cam.defocus_angle = 0.0f;
+}
+
+void CornellSmoke(hittable_list& world, camera& cam) {
+    auto red = make_shared<lambertian>(colour(0.65f, 0.05f, 0.05f));
+    auto white = make_shared<lambertian>(colour(0.73f));
+    auto green = make_shared<lambertian>(colour(0.12f, 0.45f, 0.15f));
+    auto light = make_shared<diffuse_light>(colour(7.0f));
+
+    world.add(make_shared<quad>(point3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), green));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), red));
+    world.add(make_shared<quad>(point3(113.0f, 554.0f, 127.0f), vec3(330.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 305.0f), light));
+    world.add(make_shared<quad>(point3(0.0f, 555.0f, 0.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), white));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 0.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), white));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
+
+    shared_ptr<hittable> box1 = box(point3(0.0f, 0.0f, 0.0f), point3(165.0f, 330.0f, 165.0f), white);
+    box1 = make_shared<rotate_y>(box1, 15.0f);
+    box1 = make_shared<translate>(box1, vec3(265.0f, 0.0f, 295.0f));
+
+    shared_ptr<hittable> box2 = box(point3(0.0f, 0.0f, 0.0f), point3(165.0f, 165.0f, 165.0f), white);
+    box2 = make_shared<rotate_y>(box2, -18.0f);
+    box2 = make_shared<translate>(box2, vec3(130.0f, 0.0f, 65.0f));
+
+    world.add(make_shared<constant_medium>(box1, 0.01f, colour(0.0f)));
+    world.add(make_shared<constant_medium>(box2, 0.01f, colour(1.0f)));
+
+    cam.aspect_ratio = 1.0f;
+    cam.image_width = 600.0f;
+    cam.samples_per_pixel = 200.0f;
+    cam.max_bounces = 50;
+    cam.background = colour(0.0f);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(278.0f, 278.0f, -800.0f);
+    cam.lookat = point3(278.0f, 278.0f, 0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0.0f;
 }
 
 int main()
@@ -285,9 +324,11 @@ int main()
     camera cam;
     hittable_list world;
     
-    CornellBox(world, cam);
+    CornellSmoke(world, cam);
 
-    //cam.image_width = 1920;
+    //cam.image_width = 2160;
+    //cam.max_bounces = 300;
+    //cam.samples_per_pixel = 1000;
 
     auto start = std::chrono::high_resolution_clock::now();
 
