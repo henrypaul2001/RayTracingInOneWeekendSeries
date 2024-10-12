@@ -102,6 +102,8 @@ void SphereLine(hittable_list& world, camera& cam) {
 
     cam.defocus_angle = 10.0f;
     cam.focus_dist = 3.4f;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void CheckeredSpheres(hittable_list& world, camera& cam) {
@@ -122,6 +124,8 @@ void CheckeredSpheres(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0.0f;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void Earth(hittable_list& world, camera& cam) {
@@ -143,6 +147,8 @@ void Earth(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void PerlinSpheres(hittable_list& world, camera& cam) {
@@ -162,6 +168,8 @@ void PerlinSpheres(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void Quads(hittable_list& world, camera& cam) {
@@ -191,6 +199,8 @@ void Quads(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void Primitives2D(hittable_list& world, camera& cam) {
@@ -219,6 +229,8 @@ void Primitives2D(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void SimpleLight(hittable_list& world, camera& cam) {
@@ -242,6 +254,8 @@ void SimpleLight(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void CornellBox(hittable_list& world, camera& cam) {
@@ -279,6 +293,8 @@ void CornellBox(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0.0f;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void CornellSmoke(hittable_list& world, camera& cam) {
@@ -317,6 +333,76 @@ void CornellSmoke(hittable_list& world, camera& cam) {
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
     cam.defocus_angle = 0.0f;
+
+    world = hittable_list(make_shared<bvh_node>(world));
+}
+
+void FinalWeekScene(hittable_list& world, camera& cam) {
+    hittable_list boxes1;
+    auto ground = make_shared<lambertian>(colour(0.48f, 0.83f, 0.53f));
+
+    int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            auto w = 100.0f;
+            auto x0 = -1000.0f + i * w;
+            auto z0 = -1000.0f + j * w;
+            auto y0 = 0.0f;
+            auto x1 = x0 + w;
+            auto y1 = random_double(1.0, 101.0);
+            auto z1 = z0 + w;
+
+            boxes1.add(box(point3(x0, y0, z0), point3(x1, y1, z1), ground));
+        }
+    }
+
+    world.add(make_shared<bvh_node>(boxes1));
+
+    auto light = make_shared<diffuse_light>(colour(7.0f));
+    world.add(make_shared<quad>(point3(123.0f, 554.0f, 147.0f), vec3(300.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 265.0f), light));
+
+    point3 center1 = point3(400.0f, 400.0f, 200.0f);
+    point3 center2 = center1 + vec3(30.0f, 0.0f, 0.0f);
+    auto sphere_material = make_shared<lambertian>(colour(0.7f, 0.3f, 0.1f));
+    world.add(make_shared<sphere>(center1, center2, 50.0f, sphere_material));
+
+    world.add(make_shared<sphere>(point3(260.0f, 150.0f, 45.0f), 50.0f, make_shared<dielectric>(1.5f)));
+    world.add(make_shared<sphere>(point3(0.0f, 150.0f, 145.0f), 50.0f, make_shared<metal>(colour(0.8f, 0.8f, 0.9f), 1.0f)));
+
+    auto boundary = make_shared<sphere>(point3(360.0f, 150.0f, 145.0f), 70.0f, make_shared<dielectric>(1.5f));
+    world.add(boundary);
+    world.add(make_shared<constant_medium>(boundary, 0.2f, colour(0.2f, 0.4f, 0.9f)));
+    boundary = make_shared<sphere>(point3(0.0f), 5000.0f, make_shared<dielectric>(1.5f));
+    world.add(make_shared<constant_medium>(boundary, 0.0001f, colour(1.0f)));
+
+    auto emat = make_shared<lambertian>(make_shared<image_texture>("images/earthmap.jpg"));
+    world.add(make_shared<sphere>(point3(400.0f, 200.0f, 400.0f), 100.0f, emat));
+    auto pertext = make_shared<noise_texture>(0.2f);
+    world.add(make_shared<sphere>(point3(220.0f, 280.0f, 300.0f), 80.0f, make_shared<lambertian>(pertext)));
+
+    hittable_list boxes2;
+    auto white = make_shared<lambertian>(colour(0.73f));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) {
+        boxes2.add(make_shared<sphere>(point3::random(0.0f, 165.0f), 10.0f, white));
+    }
+
+    world.add(make_shared<translate>(make_shared<rotate_y>(make_shared<bvh_node>(boxes2), 15.0f), vec3(-100.0f, 270.0f, 395.0f)));
+
+    cam.aspect_ratio = 1.0f;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 200;
+    cam.max_bounces = 50;
+    cam.background = colour(0.0f);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(478.0f, 278.0f, -600.0f);
+    cam.lookat = point3(278.0f, 278.0f, 0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0;
+
+    world = hittable_list(make_shared<bvh_node>(world));
 }
 
 int main()
@@ -324,7 +410,7 @@ int main()
     camera cam;
     hittable_list world;
     
-    CornellSmoke(world, cam);
+    FinalWeekScene(world, cam);
 
     //cam.image_width = 2160;
     //cam.max_bounces = 300;
