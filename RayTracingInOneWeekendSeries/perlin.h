@@ -5,7 +5,7 @@ class perlin {
 public:
 	perlin() {
 		for (int i = 0; i < point_count; i++) {
-			randvec[i] = normalize(vec3::random(-1.0f, 1.0f));
+			randvec[i] = normalize(vec3::fast_random(-1.0f, 1.0f));
 		}
 
 		perlin_generate_perm(perm_x);
@@ -68,7 +68,7 @@ private:
 
 	static void permute(int* p, int n) {
 		for (int i = n - 1; i > 0; i--) {
-			int target = random_int(0, i);
+			int target = fast_random_int(0, i);
 			int tmp = p[i];
 			p[i] = p[target];
 			p[target] = tmp;

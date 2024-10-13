@@ -29,9 +29,9 @@ public:
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-#define MULTITHREADED 1
-#define ULTRATHREADED 1
-#define SUPERTHREADED 1
+#define MULTITHREADED 0
+#define ULTRATHREADED 0
+#define SUPERTHREADED 0
 
 #if MULTITHREADED
 		std::vector<int> verticalIter;
@@ -180,19 +180,19 @@ private:
 
 		point3 ray_origin = (defocus_angle <= 0.0f) ? center : defocus_disk_sample();
 		vec3 ray_direction = pixel_sample - ray_origin;
-		double ray_time = random_double();
+		double ray_time = fast_random_double();
 
 		return ray(ray_origin, ray_direction, ray_time);
 	}
 
 	vec3 sample_square() const {
 		// Returns vector to a random point in the -.5, -.5 to .5, .5 square
-		return vec3(random_double() - 0.5f, random_double() - 0.5f, 0.0f);
+		return vec3(fast_random_double() - 0.5f, fast_random_double() - 0.5f, 0.0f);
 	}
 
 	point3 defocus_disk_sample() const {
 		// Returns random point in camera focus disk
-		point3 p = random_in_unit_disk();
+		point3 p = fast_random_in_unit_disk();
 		return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
 	}
 

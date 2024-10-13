@@ -18,23 +18,23 @@ void bouncing_spheres(hittable_list& world, camera& cam) {
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            auto choose_mat = random_double();
-            point3 center = point3(a + 0.9f * random_double(), 0.2f, b + 0.9f * random_double());
+            auto choose_mat = fast_random_double();
+            point3 center = point3(a + 0.9f * fast_random_double(), 0.2f, b + 0.9f * fast_random_double());
 
             if ((center - point3(4.0f, 0.2f, 0.0f)).length() > 0.9f) {
                 shared_ptr<material> sphere_material;
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    colour albedo = colour::random() * colour::random();
+                    colour albedo = colour::fast_random() * colour::fast_random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    point3 center2 = center + vec3(0.0f, random_double(0.0, 0.5), 0.0f);
+                    point3 center2 = center + vec3(0.0f, fast_random_double(0.0, 0.5), 0.0f);
                     world.add(make_shared<sphere>(center, center2, 0.2f, sphere_material));
                 }
                 else if (choose_mat < 0.95) {
                     // metal
-                    colour albedo = colour::random(0.5f, 1.0f);
-                    float fuzz = random_double(0.0, 0.5);
+                    colour albedo = colour::fast_random(0.5f, 1.0f);
+                    float fuzz = fast_random_double(0.0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2f, sphere_material));
                 }
@@ -96,14 +96,14 @@ void SphereLine(hittable_list& world, camera& cam) {
     cam.background = colour(0.7f, 0.8f, 1.0f);
 
     cam.vfov = 20.0f;
-    cam.lookfrom = point3(-2.0f, 2.0f, 1.0f);
+    cam.lookfrom = point3(0.0f, 0.5f, 3.0f);
     cam.lookat = point3(0.0f, 0.0f, -1.0f);
     cam.vup = vec3(0.0f, 1.0f, 0.0f);
 
-    cam.defocus_angle = 10.0f;
-    cam.focus_dist = 3.4f;
+    cam.defocus_angle = 2.0f;
+    cam.focus_dist = 4.0f;
 
-    world = hittable_list(make_shared<bvh_node>(world));
+    //world = hittable_list(make_shared<bvh_node>(world));
 }
 
 void CheckeredSpheres(hittable_list& world, camera& cam) {
@@ -384,7 +384,7 @@ void FinalWeekScene(hittable_list& world, camera& cam) {
     auto white = make_shared<lambertian>(colour(0.73f));
     int ns = 1000;
     for (int j = 0; j < ns; j++) {
-        boxes2.add(make_shared<sphere>(point3::random(0.0f, 165.0f), 10.0f, white));
+        boxes2.add(make_shared<sphere>(point3::fast_random(0.0f, 165.0f), 10.0f, white));
     }
 
     world.add(make_shared<translate>(make_shared<rotate_y>(make_shared<bvh_node>(boxes2), 15.0f), vec3(-100.0f, 270.0f, 395.0f)));
@@ -410,11 +410,11 @@ int main()
     camera cam;
     hittable_list world;
     
-    FinalWeekScene(world, cam);
+    SphereLine(world, cam);
 
-    //cam.image_width = 2160;
-    //cam.max_bounces = 300;
-    //cam.samples_per_pixel = 1000;
+    cam.image_width = 1920;
+    cam.max_bounces = 100;
+    cam.samples_per_pixel = 100;
 
     auto start = std::chrono::high_resolution_clock::now();
 

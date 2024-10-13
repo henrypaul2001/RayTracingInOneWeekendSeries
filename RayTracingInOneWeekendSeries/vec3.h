@@ -50,6 +50,9 @@ public:
 
 	static vec3 random() { return vec3(random_double(), random_double(), random_double()); }
 	static vec3 random(const float min, const float max) { return vec3(random_double(min, max), random_double(min, max), random_double(min, max)); }
+
+	static vec3 fast_random() { return vec3(fast_random_double(), fast_random_double(), fast_random_double()); }
+	static vec3 fast_random(const float min, const float max) { return vec3(fast_random_double(min, max), fast_random_double(min, max), fast_random_double(min, max)); }
 };
 
 // Aliases
@@ -110,6 +113,25 @@ inline vec3 random_unit_vector() {
 	}
 }
 
+inline vec3 fast_random_unit_vector() {
+	float theta = fast_random_double(0.0f, 2.0f * pi);
+	float phi = acos(fast_random_double(-1.0f, 1.0f));  // acos to sample evenly on a sphere
+	float x = sin(phi) * cos(theta);
+	float y = sin(phi) * sin(theta);
+	float z = cos(phi);
+	return vec3(x, y, z);
+
+	//while (true) {
+	//	vec3 p = vec3::fast_random(seed, -1.0f, 1.0f);
+	//	double length2 = p.length2();
+	//	if (1e-160 < length2 && length2 <= 1.0) {
+	//		return p / sqrt(length2);
+	//	}
+	//}
+
+	//return random_unit_vector();
+}
+
 inline vec3 random_in_unit_disk() {
 	while (true) {
 		vec3 p = vec3(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0f);
@@ -119,8 +141,40 @@ inline vec3 random_in_unit_disk() {
 	}
 }
 
+inline vec3 fast_random_in_unit_disk() {
+	// Generate a random angle theta and random radius squared (r^2) for uniform distribution
+	float theta = fast_random_double(0.0f, 2.0f * pi);
+	float r = sqrt(fast_random_double(0.0f, 1.0f));  // sqrt ensures uniform sampling over the disk
+
+	// Convert polar coordinates (r, theta) to Cartesian coordinates (x, y)
+	float x = r * cos(theta);
+	float y = r * sin(theta);
+
+	// Return the point in the unit disk (z is always 0)
+	return vec3(x, y, 0.0f);
+
+	//while (true) {
+	//	vec3 p = vec3(fast_random_double(seed, -1.0, 1.0), fast_random_double(seed, -1.0, 1.0), 0.0f);
+	//	if (p.length2() < 1.0f) {
+	//		return p;
+	//	}
+	//}
+
+	//return random_in_unit_disk();
+}
+
 inline vec3 random_on_hemisphere(const vec3& normal) {
 	vec3 on_unit_sphere = random_unit_vector();
+	if (dot(on_unit_sphere, normal) > 0.0f) {
+		return on_unit_sphere;
+	}
+	else {
+		return -on_unit_sphere;
+	}
+}
+
+inline vec3 fast_random_on_hemisphere(const vec3& normal) {
+	vec3 on_unit_sphere = fast_random_unit_vector();
 	if (dot(on_unit_sphere, normal) > 0.0f) {
 		return on_unit_sphere;
 	}
