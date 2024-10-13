@@ -29,9 +29,9 @@ public:
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-#define MULTITHREADED 0
-#define ULTRATHREADED 0
-#define SUPERTHREADED 0
+#define MULTITHREADED 1
+#define ULTRATHREADED 1
+#define SUPERTHREADED 1
 
 #if MULTITHREADED
 		std::vector<int> verticalIter;
