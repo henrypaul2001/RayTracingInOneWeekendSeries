@@ -120,16 +120,6 @@ inline vec3 fast_random_unit_vector() {
 	float y = sin(phi) * sin(theta);
 	float z = cos(phi);
 	return vec3(x, y, z);
-
-	//while (true) {
-	//	vec3 p = vec3::fast_random(seed, -1.0f, 1.0f);
-	//	double length2 = p.length2();
-	//	if (1e-160 < length2 && length2 <= 1.0) {
-	//		return p / sqrt(length2);
-	//	}
-	//}
-
-	//return random_unit_vector();
 }
 
 inline vec3 random_in_unit_disk() {
@@ -152,15 +142,6 @@ inline vec3 fast_random_in_unit_disk() {
 
 	// Return the point in the unit disk (z is always 0)
 	return vec3(x, y, 0.0f);
-
-	//while (true) {
-	//	vec3 p = vec3(fast_random_double(seed, -1.0, 1.0), fast_random_double(seed, -1.0, 1.0), 0.0f);
-	//	if (p.length2() < 1.0f) {
-	//		return p;
-	//	}
-	//}
-
-	//return random_in_unit_disk();
 }
 
 inline vec3 random_on_hemisphere(const vec3& normal) {
