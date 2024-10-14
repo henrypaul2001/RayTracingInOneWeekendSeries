@@ -264,8 +264,25 @@ private:
 			return colour_from_emission;
 		}
 
+		point3 on_light = point3(random_double(213.0, 343.0), 554.0f, random_double(227.0, 332.0));
+		vec3 to_light = on_light - rec.p;
+		float distance_squared = to_light.length2();
+		to_light = normalize(to_light);
+
+		if (dot(to_light, rec.normal) < 0.0f) {
+			return colour_from_emission;
+		}
+
+		float light_area = (343.0f - 213.0f) * (332.0f - 227.0f);
+		float light_cosine = std::fabs(to_light.y());
+		if (light_cosine < 0.0000001f) {
+			return colour_from_emission;
+		}
+
+		pdf_value = distance_squared / (light_cosine * light_area);
+		scattered = ray(rec.p, to_light, r.time());
+
 		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-		pdf_value = scattering_pdf;
 
 		colour colour_from_scatter = (attenuation * scattering_pdf * ray_colour(scattered, depth - 1, world)) / pdf_value;
 
