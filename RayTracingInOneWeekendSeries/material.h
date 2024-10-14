@@ -13,6 +13,10 @@ public:
 	virtual bool scatter(const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered) const {
 		return false;
 	}
+
+	virtual float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const {
+		return 0.0f;
+	}
 };
 
 class lambertian : public material {
@@ -21,7 +25,8 @@ public:
 	lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
 	bool scatter(const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered) const override {
-		vec3 scatter_direction = rec.normal + fast_random_unit_vector();
+		//vec3 scatter_direction = rec.normal + fast_random_unit_vector();
+		vec3 scatter_direction = random_on_hemisphere(rec.normal);
 
 		if (scatter_direction.near_zero()) {
 			scatter_direction = rec.normal;
@@ -30,6 +35,13 @@ public:
 		scattered = ray(rec.p, scatter_direction, r_in.time());
 		attenuation = tex->value(rec.u, rec.v, rec.p);
 		return true;
+	}
+
+	float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override {
+		//float cos_theta = dot(rec.normal, normalize(scattered.Direction()));
+		//return cos_theta < 0.0f ? 0.0f : cos_theta / pi;
+
+		return 1.0f / (2.0f * pi);
 	}
 
 private:

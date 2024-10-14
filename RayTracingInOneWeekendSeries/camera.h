@@ -263,7 +263,11 @@ private:
 			return colour_from_emission;
 		}
 
-		colour colour_from_scatter = attenuation * ray_colour(scattered, depth - 1, world);
+		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+		float pdf_value = scattering_pdf;
+
+		//colour colour_from_scatter = attenuation * ray_colour(scattered, depth - 1, world);
+		colour colour_from_scatter = (attenuation * scattering_pdf * ray_colour(scattered, depth - 1, world)) / pdf_value;
 
 		return colour_from_emission + colour_from_scatter;
 
