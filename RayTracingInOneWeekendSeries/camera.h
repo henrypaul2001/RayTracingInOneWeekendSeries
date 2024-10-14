@@ -257,22 +257,18 @@ private:
 
 		ray scattered;
 		colour attenuation;
+		float pdf_value;
 		colour colour_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
 
-		if (!rec.mat->scatter(r, rec, attenuation, scattered)) {
+		if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value)) {
 			return colour_from_emission;
 		}
 
 		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-		float pdf_value = scattering_pdf;
+		pdf_value = scattering_pdf;
 
-		//colour colour_from_scatter = attenuation * ray_colour(scattered, depth - 1, world);
 		colour colour_from_scatter = (attenuation * scattering_pdf * ray_colour(scattered, depth - 1, world)) / pdf_value;
 
 		return colour_from_emission + colour_from_scatter;
-
-		//vec3 unit_direction = normalize(r.Direction());
-		//float a = 0.5f * (unit_direction.y() + 1.0f); // -1, 1 to 0, 1
-		//return lerp(colour(1.0f), colour(0.5f, 0.7f, 1.0f), a);
 	}
 };

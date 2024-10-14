@@ -122,6 +122,18 @@ inline vec3 fast_random_unit_vector() {
 	return vec3(x, y, z);
 }
 
+inline vec3 random_cosine_direction() {
+	float r1 = random_double();
+	float r2 = random_double();
+
+	float phi = 2.0f * pi * r1;
+	float x = std::cos(phi) * std::sqrt(r2);
+	float y = std::sin(phi) * std::sqrt(r2);
+	float z = std::sqrt(1.0f - r2);
+
+	return vec3(x, y, z);
+}
+
 inline vec3 random_in_unit_disk() {
 	while (true) {
 		vec3 p = vec3(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0f);
