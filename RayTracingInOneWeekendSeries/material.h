@@ -120,7 +120,12 @@ public:
 	bool scatter(const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered, float& pdf) const override {
 		scattered = ray(rec.p, fast_random_unit_vector(), r_in.time());
 		attenuation = tex->value(rec.u, rec.v, rec.p);
+		pdf = 1.0f / (4.0f * pi);
 		return true;
+	}
+
+	float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override {
+		return 1.0f / (4.0f * pi);
 	}
 
 private:
