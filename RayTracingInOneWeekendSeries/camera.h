@@ -258,7 +258,7 @@ private:
 		ray scattered;
 		colour attenuation;
 		float pdf_value;
-		colour colour_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+		colour colour_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
 		if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value)) {
 			return colour_from_emission;

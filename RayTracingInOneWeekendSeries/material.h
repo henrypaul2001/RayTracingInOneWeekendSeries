@@ -7,7 +7,7 @@ class material {
 public:
 	virtual ~material() = default;
 
-	virtual colour emitted(const float u, const float v, const point3& p) const {
+	virtual colour emitted(const ray& r_in, const hit_record& rec, const float u, const float v, const point3& p) const {
 		return colour(0.0f);
 	}
 
@@ -104,7 +104,10 @@ public:
 	diffuse_light(shared_ptr<texture> tex) : tex(tex) {}
 	diffuse_light(const colour& emit) : tex(make_shared<solid_colour>(emit)) {}
 
-	colour emitted(const float u, const float v, const point3& p) const override {
+	colour emitted(const ray& r_in, const hit_record& rec, const float u, const float v, const point3& p) const override {
+		if (!rec.front_face) {
+			return colour(0.0f);
+		}
 		return tex->value(u, v, p);
 	}
 
