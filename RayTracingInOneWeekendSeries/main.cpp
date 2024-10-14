@@ -502,14 +502,62 @@ void CornellMirrors(hittable_list& world, camera& cam) {
     world = hittable_list(make_shared<bvh_node>(world));
 }
 
+void CornellBoxThree(hittable_list& world, camera& cam) {
+    auto red = make_shared<lambertian>(colour(0.65f, 0.05f, 0.05f));
+    auto white = make_shared<lambertian>(colour(0.73f));
+    auto green = make_shared<lambertian>(colour(0.12f, 0.45f, 0.15f));
+    auto light = make_shared<diffuse_light>(colour(3.0f, 0.85f, 0.1f) * 2.5f);
+    auto mirror = make_shared<metal>(colour(1.0f), 0.0f);
+    auto glass = make_shared<dielectric>(1.5f);
+
+    world.add(make_shared<quad>(point3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), green));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), red));
+    world.add(make_shared<quad>(point3(0.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), white));
+    world.add(make_shared<quad>(point3(555.0f), vec3(-555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -555.0f), white));
+    world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
+
+    world.add(make_shared<sphere>(point3(165.0f, 350.0f, 265.0f), 75.0f, mirror));
+
+    world.add(make_shared<quad>(point3(365.0f, 275.0f, 250.0f), vec3(-250.0f, 0.0f, -300.0f), vec3(-100.0f, -350.0f, 0.0f), make_shared<dielectric>(1.1f)));
+
+    world.add(make_shared<quad>(point3(400.0f, 100.0f, 450.0f), vec3(55.0f, 0.0f, -150.0f) * 2.5f, vec3(-100.0f, 400.0f, 0.0f), light));
+    world.add(make_shared<quad>(point3(401.0f, 100.0f, 451.0f), vec3(55.0f, 0.0f, -150.0f) * 2.5f, vec3(-100.0f, 400.0f, 0.0f), white));
+
+    auto ball = hittable_list();
+    ball.add(make_shared<sphere>(point3(277.5f, 50.0f, 110.0f), 40.0f, glass));
+    ball.add(make_shared<sphere>(point3(277.5f, 50.0f, 110.0f), 35.0f, make_shared<dielectric>(1.0f / 1.5f)));
+
+    shared_ptr<hittable> ballPrefab = make_shared<hittable_list>(ball);
+
+    world.add(ballPrefab);
+
+    world.add(make_shared<translate>(ballPrefab, vec3(-125.0f, 0.0f, -100.0f)));
+    world.add(make_shared<translate>(ballPrefab, vec3(100.0f, 0.0f, -110.0f)));
+
+    cam.aspect_ratio = 1.0f;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_bounces = 50;
+    cam.background = colour(0.0f);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(278.0f, 278.0f, -760.0f);
+    cam.lookat = point3(278.0f, 278.0f, 0.0f);
+    cam.vup = vec3(0.0f, 1.0f, 0.0f);
+
+    cam.defocus_angle = 0.0f;
+
+    world = hittable_list(make_shared<bvh_node>(world));
+}
+
 int main()
 {
     camera cam;
     hittable_list world;
     
-    CornellMirrors(world, cam);
+    CornellBoxThree(world, cam);
 
-    cam.image_width = 1080;
+    cam.image_width = 2160;
     cam.max_bounces = 100;
     cam.samples_per_pixel = 100;
 
