@@ -25,10 +25,30 @@ public:
 	void render(const hittable& world) {
 		initialize();
 
-		colour* colours = new colour[image_width * image_height];
+		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+		for (int j = 0; j < image_height; j++) {
+			std::clog << "\rScanlines remaining: " << (image_height - j) << "                             \r" << std::flush;
+			for (int i = 0; i < image_width; i++) {
+				colour pixel_colour = colour(0.0f);
+				for (int s_j = 0; s_j < sqrt_spp; s_j++) {
+					for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+						ray r = get_ray(i, j, s_i, s_j);
+						pixel_colour += ray_colour(r, max_bounces, world);
+					}
+				}
+				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
+			}
+		}
+		std::clog << "\rDone.					\n";
+	}
+
+	void render_threaded(const hittable& world) {
+		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+		colour* colours = new colour[image_width * image_height];
 #define MULTITHREADED 1
 #define ULTRATHREADED 1
 #define SUPERTHREADED 1
@@ -126,6 +146,8 @@ public:
 private:
 	int image_height;			// Rendered image height
 	float pixel_samples_scale;  // Colour scale factor for sum of pixel samples
+	int sqrt_spp;				// Square root of number of samples per pixel
+	float recip_sqrt_spp;		// 1 / sqrt_spp
 	point3 center;				// Camera center
 	point3 pixel00_loc;			// Location of pixel 0, 0
 	vec3 pixel_delta_u;			// Offset to pixel to the right
@@ -139,6 +161,10 @@ private:
 		image_height = (image_height < 1) ? 1 : image_height;
 
 		pixel_samples_scale = 1.0f / samples_per_pixel;
+
+		sqrt_spp = int(std::sqrt(samples_per_pixel));
+		pixel_samples_scale = 1.0f / (sqrt_spp * sqrt_spp);
+		recip_sqrt_spp = 1.0f / sqrt_spp;
 
 		center = lookfrom;
 
@@ -185,9 +211,31 @@ private:
 		return ray(ray_origin, ray_direction, ray_time);
 	}
 
+	ray get_ray(int i, int j, int s_i, int s_j) const {
+		// Construct ray originating from defocus disk and directed and randomly sampled point around pixel location i, j for stratified sample square s_i, s_j
+		vec3 offset = sample_square_stratified(s_i, s_j);
+		vec3 pixel_sample = pixel00_loc
+			+ ((i + offset.x()) * pixel_delta_u)
+			+ ((j + offset.y()) * pixel_delta_v);
+
+		point3 ray_origin = (defocus_angle <= 0.0f) ? center : defocus_disk_sample();
+		vec3 ray_direction = pixel_sample - ray_origin;
+		double ray_time = fast_random_double();
+
+		return ray(ray_origin, ray_direction, ray_time);
+	}
+
 	vec3 sample_square() const {
 		// Returns vector to a random point in the -.5, -.5 to .5, .5 square
 		return vec3(fast_random_double() - 0.5f, fast_random_double() - 0.5f, 0.0f);
+	}
+
+	vec3 sample_square_stratified(int s_i, int s_j) const {
+		// Returns vector to random point in square sub-pixel specified by grid indices s_i, s_j
+		auto px = ((s_i + fast_random_double()) * recip_sqrt_spp) - 0.5;
+		auto py = ((s_j + fast_random_double()) * recip_sqrt_spp) - 0.5;
+
+		return vec3(px, py, 0.0f);
 	}
 
 	point3 defocus_disk_sample() const {

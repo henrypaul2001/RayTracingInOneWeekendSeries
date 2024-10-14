@@ -283,7 +283,7 @@ void CornellBox(hittable_list& world, camera& cam) {
 
     cam.aspect_ratio = 1.0f;
     cam.image_width = 600;
-    cam.samples_per_pixel = 200;
+    cam.samples_per_pixel = 64;
     cam.max_bounces = 50;
     cam.background = colour(0.0f);
 
@@ -555,11 +555,11 @@ int main()
     camera cam;
     hittable_list world;
     
-    CornellBoxThree(world, cam);
+    CornellBox(world, cam);
 
-    cam.image_width = 2160;
-    cam.max_bounces = 100;
-    cam.samples_per_pixel = 100;
+    //cam.image_width = 2160;
+    //cam.max_bounces = 100;
+    //cam.samples_per_pixel = 100;
 
     auto start = std::chrono::high_resolution_clock::now();
 
