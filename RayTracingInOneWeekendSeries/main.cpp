@@ -270,7 +270,8 @@ void CornellBox(hittable_list& world, camera& cam) {
     world.add(make_shared<quad>(point3(555.0f), vec3(-555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -555.0f), white));
     world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
 
-    shared_ptr<hittable> box1 = box(point3(0.0f), point3(165.0f, 330.0f, 165.0f), white);
+    shared_ptr<material> aluminium = make_shared<metal>(colour(0.8f, 0.85f, 0.88f), 0.0f);
+    shared_ptr<hittable> box1 = box(point3(0.0f), point3(165.0f, 330.0f, 165.0f), aluminium);
     box1 = make_shared<rotate_y>(box1, 15.0f);
     box1 = make_shared<translate>(box1, vec3(265.0f, 0.0f, 295.0f));
     world.add(box1);
