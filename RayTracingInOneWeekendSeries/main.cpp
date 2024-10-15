@@ -561,7 +561,7 @@ int main()
 
     //cam.image_width = 2160;
     //cam.max_bounces = 100;
-    cam.samples_per_pixel = 1;
+    cam.samples_per_pixel = 10;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -573,20 +573,23 @@ int main()
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     // Extract hours, minutes, and seconds from the total duration
     auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
     duration -= hours;
     auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
     duration -= minutes;
-    auto seconds = duration; // Remaining seconds
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    duration -= seconds;
+    auto milliseconds = duration;  // Remaining milliseconds
 
     // Display the time elapsed
     std::clog << "Time elapsed: "
         << hours.count() << " hours, "
         << minutes.count() << " minutes, "
-        << seconds.count() << " seconds";
+        << seconds.count() << " seconds, "
+        << milliseconds.count() << " milliseconds\r\n";
 
     char c;
     std::cin >> c;
