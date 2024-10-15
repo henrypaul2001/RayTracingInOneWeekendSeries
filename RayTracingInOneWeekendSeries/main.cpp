@@ -570,7 +570,7 @@ int main()
 
     //cam.image_width = 2160;
     //cam.max_bounces = 100;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 250;
 
     auto start = std::chrono::high_resolution_clock::now();
 

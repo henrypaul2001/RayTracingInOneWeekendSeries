@@ -10,6 +10,11 @@ inline void WriteColour(std::ostream& out, const colour& rgbColour) {
 	float g = rgbColour.g();
 	float b = rgbColour.b();
 
+	// NaN check
+	if (r != r) { r = 0.0f; }
+	if (g != g) { g = 0.0f; }
+	if (b != b) { b = 0.0f; }
+
 	// Gamma correction
 	r = linear_to_gamma(r);
 	g = linear_to_gamma(g);
