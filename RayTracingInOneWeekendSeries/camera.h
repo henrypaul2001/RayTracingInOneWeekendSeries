@@ -258,26 +258,23 @@ private:
 			return background;
 		}
 
-		ray scattered;
-		colour attenuation;
-		float pdf_value;
+		scatter_record srec;
 		colour colour_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
-		if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value)) {
+		if (!rec.mat->scatter(r, rec, srec)) {
 			return colour_from_emission;
 		}
 
-		auto p0 = make_shared<hittable_pdf>(lights, rec.p);
-		auto p1 = make_shared<cosine_pdf>(rec.normal);
-		mixture_pdf mixed_pdf = mixture_pdf(p0, p1);
-
-		scattered = ray(rec.p, mixed_pdf.generate(), r.time());
-		pdf_value = mixed_pdf.value(scattered.Direction());
+		auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
+		mixture_pdf p = mixture_pdf(light_ptr, srec.pdf_ptr);
+		
+		ray scattered = ray(rec.p, p.generate(), r.time());
+		float pdf_value = p.value(scattered.Direction());
 
 		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
 		colour sample_colour = ray_colour(scattered, depth - 1, world, lights);
-		colour colour_from_scatter = (attenuation * scattering_pdf * sample_colour) / pdf_value;
+		colour colour_from_scatter = (srec.attenuation * scattering_pdf * sample_colour) / pdf_value;
 
 		return colour_from_emission + colour_from_scatter;
 	}
