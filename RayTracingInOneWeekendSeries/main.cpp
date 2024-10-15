@@ -270,16 +270,18 @@ void CornellBox(hittable_list& world, camera& cam) {
     world.add(make_shared<quad>(point3(555.0f), vec3(-555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -555.0f), white));
     world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
 
-    shared_ptr<material> aluminium = make_shared<metal>(colour(0.8f, 0.85f, 0.88f), 0.0f);
-    shared_ptr<hittable> box1 = box(point3(0.0f), point3(165.0f, 330.0f, 165.0f), aluminium);
+    shared_ptr<hittable> box1 = box(point3(0.0f), point3(165.0f, 330.0f, 165.0f), white);
     box1 = make_shared<rotate_y>(box1, 15.0f);
     box1 = make_shared<translate>(box1, vec3(265.0f, 0.0f, 295.0f));
     world.add(box1);
 
-    shared_ptr<hittable> box2 = box(point3(0.0f), point3(165.0f), white);
-    box2 = make_shared<rotate_y>(box2, -18.0f);
-    box2 = make_shared<translate>(box2, vec3(130.0f, 0.0f, 65.0f));
-    world.add(box2);
+    auto glass = make_shared<dielectric>(1.5f);
+    world.add(make_shared<sphere>(point3(190.0f, 90.0f, 190.0f), 90.0f, glass));
+
+    //shared_ptr<hittable> box2 = box(point3(0.0f), point3(165.0f), white);
+    //box2 = make_shared<rotate_y>(box2, -18.0f);
+    //box2 = make_shared<translate>(box2, vec3(130.0f, 0.0f, 65.0f));
+    //world.add(box2);
 
     // Light sources
     world.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), light));

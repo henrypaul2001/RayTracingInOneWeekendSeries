@@ -1,5 +1,6 @@
 #pragma once
 #include "hittable.h"
+#include "onb.h"
 class sphere : public hittable {
 public:
 	// Stationary sphere
@@ -52,11 +53,44 @@ public:
 
 	aabb bounding_box() const override { return bbox; }
 
+	float pdf_value(const point3& origin, const vec3& direction) const override {
+		// This method only works for stationary spheres
+		hit_record rec;
+		if (!this->hit(ray(origin, direction), interval(0.001f, infinity), rec)) {
+			return 0.0f;
+		}
+
+		float dist_squared = (center.at(0.0f) - origin).length2();
+		float cos_theta_max = std::sqrt(1 - radius * radius / dist_squared);
+		float solid_angle = 2.0f * pi * (1.0f - cos_theta_max);
+
+		return 1.0f / solid_angle;
+	}
+
+	vec3 random(const point3& origin) const override {
+		vec3 direction = center.at(0.0f) - origin;
+		float distance_squared = direction.length2();
+		onb uvw = onb(direction);
+		return uvw.transform(random_to_sphere(radius, distance_squared));
+	}
+
 private:
 	ray center; // Acts as a path for animated spheres
 	float radius;
 	shared_ptr<material> mat;
 	aabb bbox;
+
+	static vec3 random_to_sphere(float radius, float distance_squared) {
+		float r1 = random_double();
+		float r2 = random_double();
+		float z = 1.0f + r2 * (std::sqrt(1.0f - radius * radius / distance_squared) - 1.0f);
+
+		float phi = 2.0f * pi * r1;
+		float x = std::cos(phi) * std::sqrt(1.0f - z * z);
+		float y = std::sin(phi) * std::sqrt(1.0f - z * z);
+		
+		return vec3(x, y, z);
+	}
 
 	static void get_sphere_uv(const point3& p, float& u, float& v) {
 		float theta = std::acos(-p.y());
