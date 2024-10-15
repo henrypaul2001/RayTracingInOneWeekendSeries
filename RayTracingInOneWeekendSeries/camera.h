@@ -1,6 +1,6 @@
 #pragma once
 #include "hittable.h"
-#include "cosine_pdf.h"
+#include "hittable_pdf.h"
 #include "material.h"
 
 #include <algorithm>
@@ -23,7 +23,7 @@ public:
 	float defocus_angle = 0.0f; // Variation angle of rays through each pixel
 	float focus_dist = 10.0f;	// Distance from camera lookfrom point to plane of perfect focus
 
-	void render(const hittable& world) {
+	void render(const hittable& world, const hittable& lights) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -35,7 +35,7 @@ public:
 				for (int s_j = 0; s_j < sqrt_spp; s_j++) {
 					for (int s_i = 0; s_i < sqrt_spp; s_i++) {
 						ray r = get_ray(i, j, s_i, s_j);
-						pixel_colour += ray_colour(r, max_bounces, world);
+						pixel_colour += ray_colour(r, max_bounces, world, lights);
 					}
 				}
 				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
@@ -44,7 +44,7 @@ public:
 		std::clog << "\rDone.					\n";
 	}
 
-	void render_threaded(const hittable& world) {
+	void render_threaded(const hittable& world, const hittable& lights) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -86,7 +86,7 @@ public:
 
 				std::for_each(std::execution::par, sampleIter.begin(), sampleIter.end(), [this, &world, &samples, i, j](int sample) {
 					ray r = get_ray(i, j);
-					samples[sample] = ray_colour(r, max_bounces, world);
+					//samples[sample] = ray_colour(r, max_bounces, world);
 				});
 
 				for (const colour& sample : samples) {
@@ -245,7 +245,7 @@ private:
 		return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
 	}
 
-	colour ray_colour(const ray& r, const int depth, const hittable& world) const {
+	colour ray_colour(const ray& r, const int depth, const hittable& world, const hittable& lights) const {
 		if (depth <= 0) {
 			return colour(0.0f);
 		}
@@ -265,31 +265,14 @@ private:
 			return colour_from_emission;
 		}
 
-		cosine_pdf surface_pdf = cosine_pdf(rec.normal);
-		scattered = ray(rec.p, surface_pdf.generate(), r.time());
-		pdf_value = surface_pdf.value(scattered.Direction());
-
-		//point3 on_light = point3(random_double(213.0, 343.0), 554.0f, random_double(227.0, 332.0));
-		//vec3 to_light = on_light - rec.p;
-		//float distance_squared = to_light.length2();
-		//to_light = normalize(to_light);
-
-		//if (dot(to_light, rec.normal) < 0.0f) {
-		//	return colour_from_emission;
-		//}
-
-		//float light_area = (343.0f - 213.0f) * (332.0f - 227.0f);
-		//float light_cosine = std::fabs(to_light.y());
-		//if (light_cosine < 0.0000001f) {
-		//	return colour_from_emission;
-		//}
-
-		//pdf_value = distance_squared / (light_cosine * light_area);
-		//scattered = ray(rec.p, to_light, r.time());
+		hittable_pdf light_pdf = hittable_pdf(lights, rec.p);
+		scattered = ray(rec.p, light_pdf.generate(), r.time());
+		pdf_value = light_pdf.value(scattered.Direction());
 
 		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-		colour colour_from_scatter = (attenuation * scattering_pdf * ray_colour(scattered, depth - 1, world)) / pdf_value;
+		colour sample_colour = ray_colour(scattered, depth - 1, world, lights);
+		colour colour_from_scatter = (attenuation * scattering_pdf * sample_colour) / pdf_value;
 
 		return colour_from_emission + colour_from_scatter;
 	}

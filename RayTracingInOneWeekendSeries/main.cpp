@@ -266,7 +266,6 @@ void CornellBox(hittable_list& world, camera& cam) {
 
     world.add(make_shared<quad>(point3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), green));
     world.add(make_shared<quad>(point3(0.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), red));
-    world.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), light));
     world.add(make_shared<quad>(point3(0.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 555.0f), white));
     world.add(make_shared<quad>(point3(555.0f), vec3(-555.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -555.0f), white));
     world.add(make_shared<quad>(point3(0.0f, 0.0f, 555.0f), vec3(555.0f, 0.0f, 0.0f), vec3(0.0f, 555.0f, 0.0f), white));
@@ -280,6 +279,9 @@ void CornellBox(hittable_list& world, camera& cam) {
     box2 = make_shared<rotate_y>(box2, -18.0f);
     box2 = make_shared<translate>(box2, vec3(130.0f, 0.0f, 65.0f));
     world.add(box2);
+
+    // Light sources
+    world.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), light));
 
     cam.aspect_ratio = 1.0f;
     cam.image_width = 600;
@@ -559,12 +561,15 @@ int main()
 
     //cam.image_width = 2160;
     //cam.max_bounces = 100;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 1;
 
     auto start = std::chrono::high_resolution_clock::now();
 
+    // Light sources
+    quad lights = quad(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), shared_ptr<material>());
+
     // Render
-    cam.render(world);
+    cam.render(world, lights);
 
     auto end = std::chrono::high_resolution_clock::now();
 
