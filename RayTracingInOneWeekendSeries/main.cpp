@@ -258,7 +258,7 @@ void SimpleLight(hittable_list& world, camera& cam) {
     world = hittable_list(make_shared<bvh_node>(world));
 }
 
-void CornellBox(hittable_list& world, camera& cam) {
+void CornellBox(hittable_list& world, camera& cam, hittable_list& importanceList) {
     auto red = make_shared<lambertian>(colour(0.65f, 0.05f, 0.05f));
     auto white = make_shared<lambertian>(colour(0.73f));
     auto green = make_shared<lambertian>(colour(0.12f, 0.45f, 0.15f));
@@ -285,6 +285,11 @@ void CornellBox(hittable_list& world, camera& cam) {
 
     // Light sources
     world.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), light));
+
+    // Importance list
+    auto empty_material = shared_ptr<material>();
+    importanceList.add(make_shared<quad>(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), empty_material));
+    importanceList.add(make_shared<sphere>(point3(190.0f, 90.0f, 190.0f), 90.0f, empty_material));
 
     cam.aspect_ratio = 1.0f;
     cam.image_width = 600;
@@ -559,8 +564,9 @@ int main()
 {
     camera cam;
     hittable_list world;
+    hittable_list importance;
     
-    CornellBox(world, cam);
+    CornellBox(world, cam, importance);
 
     //cam.image_width = 2160;
     //cam.max_bounces = 100;
@@ -568,11 +574,8 @@ int main()
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Light sources
-    quad lights = quad(point3(343.0f, 554.0f, 332.0f), vec3(-130.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -105.0f), shared_ptr<material>());
-
     // Render
-    cam.render(world, lights);
+    cam.render(world, importance);
 
     auto end = std::chrono::high_resolution_clock::now();
 

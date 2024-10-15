@@ -25,7 +25,7 @@ public:
 	float defocus_angle = 0.0f; // Variation angle of rays through each pixel
 	float focus_dist = 10.0f;	// Distance from camera lookfrom point to plane of perfect focus
 
-	void render(const hittable& world, const hittable& lights) {
+	void render(const hittable& world, const hittable& importance) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -37,7 +37,7 @@ public:
 				for (int s_j = 0; s_j < sqrt_spp; s_j++) {
 					for (int s_i = 0; s_i < sqrt_spp; s_i++) {
 						ray r = get_ray(i, j, s_i, s_j);
-						pixel_colour += ray_colour(r, max_bounces, world, lights);
+						pixel_colour += ray_colour(r, max_bounces, world, importance);
 					}
 				}
 				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
@@ -46,7 +46,7 @@ public:
 		std::clog << "\rDone.					\n";
 	}
 
-	void render_threaded(const hittable& world, const hittable& lights) {
+	void render_threaded(const hittable& world, const hittable& importance) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -247,7 +247,7 @@ private:
 		return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
 	}
 
-	colour ray_colour(const ray& r, const int depth, const hittable& world, const hittable& lights) const {
+	colour ray_colour(const ray& r, const int depth, const hittable& world, const hittable& importance) const {
 		if (depth <= 0) {
 			return colour(0.0f);
 		}
@@ -266,10 +266,10 @@ private:
 		}
 
 		if (srec.skip_pdf) {
-			return srec.attenuation * ray_colour(srec.skip_pdf_ray, depth - 1, world, lights);
+			return srec.attenuation * ray_colour(srec.skip_pdf_ray, depth - 1, world, importance);
 		}
 
-		auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
+		auto light_ptr = make_shared<hittable_pdf>(importance, rec.p);
 		mixture_pdf p = mixture_pdf(light_ptr, srec.pdf_ptr);
 		
 		ray scattered = ray(rec.p, p.generate(), r.time());
@@ -277,7 +277,7 @@ private:
 
 		float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-		colour sample_colour = ray_colour(scattered, depth - 1, world, lights);
+		colour sample_colour = ray_colour(scattered, depth - 1, world, importance);
 		colour colour_from_scatter = (srec.attenuation * scattering_pdf * sample_colour) / pdf_value;
 
 		return colour_from_emission + colour_from_scatter;
