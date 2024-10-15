@@ -10,6 +10,8 @@ public:
 		D = dot(normal, Q);
 		w = n / dot(n, n);
 		
+		area = n.length();
+
 		set_bounding_box();
 	}
 
@@ -53,6 +55,23 @@ public:
 		return true;
 	}
 
+	float pdf_value(const point3& origin, const vec3& direction) const override {
+		hit_record rec;
+		if (!this->hit(ray(origin, direction), interval(0.001f, infinity), rec)) {
+			return 0.0f;
+		}
+
+		float distance_squared = rec.t * rec.t * direction.length2();
+		float cosine = std::fabs(dot(direction, rec.normal) / direction.length());
+
+		return distance_squared / (cosine * area);
+	}
+
+	vec3 random(const point3& origin) const override {
+		vec3 p = Q + (random_double() * u) + (random_double() * v);
+		return p - origin;
+	}
+
 protected:
 	point3 Q;
 	vec3 u, v;
@@ -62,6 +81,7 @@ protected:
 
 	vec3 normal;
 	float D;
+	float area;
 
 	virtual bool is_interior(const float a, const float b, hit_record& rec) const {
 		interval unit_interval = interval(0.0f, 1.0f);

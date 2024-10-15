@@ -95,5 +95,8 @@
     <ClInclude Include="cosine_pdf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hittable_pdf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

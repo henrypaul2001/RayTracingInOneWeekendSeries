@@ -27,6 +27,14 @@ public:
 	virtual ~hittable() = default;
 	virtual bool hit(const ray& r, const interval ray_t, hit_record& out_hit) const = 0;
 	virtual aabb bounding_box() const = 0;
+
+	virtual float pdf_value(const point3& origin, const vec3& direction) const {
+		return 0.0f;
+	}
+
+	virtual vec3 random(const point3& origin) const {
+		return vec3(1.0f, 0.0f, 0.0f);
+	}
 };
 
 class translate : public hittable {
