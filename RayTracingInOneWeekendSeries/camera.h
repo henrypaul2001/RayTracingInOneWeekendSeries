@@ -25,38 +25,42 @@ public:
 	float defocus_angle = 0.0f; // Variation angle of rays through each pixel
 	float focus_dist = 10.0f;	// Distance from camera lookfrom point to plane of perfect focus
 
-	void render(const hittable& world, const hittable& importance) {
-		initialize();
+	void render(const hittable& world, const hittable& importance, const unsigned int thread_mode = 0) {
+		if (thread_mode == 0) {
+			initialize();
 
-		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+			std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-		for (int j = 0; j < image_height; j++) {
-			std::clog << "\rScanlines remaining: " << (image_height - j) << "                             \r" << std::flush;
-			for (int i = 0; i < image_width; i++) {
-				colour pixel_colour = colour(0.0f);
-				for (int s_j = 0; s_j < sqrt_spp; s_j++) {
-					for (int s_i = 0; s_i < sqrt_spp; s_i++) {
-						ray r = get_ray(i, j, s_i, s_j);
-						pixel_colour += ray_colour(r, max_bounces, world, importance);
+			for (int j = 0; j < image_height; j++) {
+				std::clog << "\rScanlines remaining: " << (image_height - j) << "                             \r" << std::flush;
+				for (int i = 0; i < image_width; i++) {
+					colour pixel_colour = colour(0.0f);
+					for (int s_j = 0; s_j < sqrt_spp; s_j++) {
+						for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+							ray r = get_ray(i, j, s_i, s_j);
+							pixel_colour += ray_colour(r, max_bounces, world, importance);
+						}
 					}
+					WriteColour(std::cout, pixel_samples_scale * pixel_colour);
 				}
-				WriteColour(std::cout, pixel_samples_scale * pixel_colour);
 			}
 		}
+		else {
+			render_threaded(world, importance, thread_mode);
+		}
+
 		std::clog << "\rDone.					\n";
 	}
 
-	void render_threaded(const hittable& world, const hittable& importance) {
+	void render_threaded(const hittable& world, const hittable& importance, const unsigned int thread_mode) {
 		initialize();
 
 		std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
 		colour* colours = new colour[image_width * image_height];
-#define MULTITHREADED 1
-#define ULTRATHREADED 1
-#define SUPERTHREADED 1
 
-#if MULTITHREADED
+		std::atomic_int scanlinesRemainingAtomic = image_height;
+
 		std::vector<int> verticalIter;
 		verticalIter.reserve(image_height);
 		for (int i = 0; i < image_height; i++) {
@@ -70,80 +74,76 @@ public:
 		}
 
 		std::vector<int> sampleIter;
-		sampleIter.reserve(samples_per_pixel);
-		for (int i = 0; i < samples_per_pixel; i++) {
+		sampleIter.reserve(sqrt_spp);
+		for (int i = 0; i < sqrt_spp; i++) {
 			sampleIter.push_back(i);
 		}
 
-		std::atomic_int scanlinesRemainingAtomic = image_height;
-		std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [this, &world, &colours, &scanlinesRemainingAtomic, &horizontalIter, &sampleIter](int j) {
-#if ULTRATHREADED
-			std::clog << "\rScanlines remaining: " << scanlinesRemainingAtomic << "                             \r" << std::flush;
+		switch (thread_mode) {
+		case 1:
+			std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [this, &world, &importance, &colours, &scanlinesRemainingAtomic](int j) {
+				std::clog << "\rScanlines remaining: " << scanlinesRemainingAtomic << "                             \r" << std::flush;
+				for (int i = 0; i < image_width; i++) {
+					colour pixel_colour = colour(0.0f);
+					for (int s_j = 0; s_j < sqrt_spp; s_j++) {
+						for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+							ray r = get_ray(i, j, s_i, s_j);
+							pixel_colour += ray_colour(r, max_bounces, world, importance);
+						}
+					}
+					colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
+				}
+				scanlinesRemainingAtomic--;
+			});
+			break;
+		case 2:
+			std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [this, &world, &importance, &colours, &scanlinesRemainingAtomic, &horizontalIter](int j) {
+				std::clog << "\rScanlines remaining: " << scanlinesRemainingAtomic << "                             \r" << std::flush;
+				std::for_each(std::execution::par, horizontalIter.begin(), horizontalIter.end(), [this, &world, &importance, &colours, j](int i) {
+					colour pixel_colour = colour(0.0f);
+					for (int s_j = 0; s_j < sqrt_spp; s_j++) {
+						for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+							ray r = get_ray(i, j, s_i, s_j);
+							pixel_colour += ray_colour(r, max_bounces, world, importance);
+						}
+					}
+					colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
+				});
+	
+				scanlinesRemainingAtomic--;
+			});
+			break;
+		case 3:
+			std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [this, &world, &importance, &colours, &scanlinesRemainingAtomic, &horizontalIter, &sampleIter](int j) {
+				std::clog << "\rScanlines remaining: " << scanlinesRemainingAtomic << "                             \r" << std::flush;
+				std::for_each(std::execution::par, horizontalIter.begin(), horizontalIter.end(), [this, &world, &importance, &colours, j, &sampleIter](int i) {
+					colour pixel_colour = colour(0.0f);
 
-			std::for_each(std::execution::par, horizontalIter.begin(), horizontalIter.end(), [this, &world, &colours, j, &sampleIter](int i) {
-				colour pixel_colour = colour(0.0f);
+					std::for_each(std::execution::par, sampleIter.begin(), sampleIter.end(), [this, &world, &importance, i, j, &pixel_colour](int s_j) {
+						for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+							ray r = get_ray(i, j, s_i, s_j);
+							pixel_colour += ray_colour(r, max_bounces, world, importance);
+						}
+					});
 
-#if SUPERTHREADED
-				std::vector<colour> samples = std::vector<colour>(samples_per_pixel, colour(0.0f));
-
-				std::for_each(std::execution::par, sampleIter.begin(), sampleIter.end(), [this, &world, &samples, i, j](int sample) {
-					ray r = get_ray(i, j);
-					//samples[sample] = ray_colour(r, max_bounces, world);
+					colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
 				});
 
-				for (const colour& sample : samples) {
-					pixel_colour += sample;
-				}
-				colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
-#else
-				for (int sample = 0; sample < samples_per_pixel; sample++) {
-					ray r = get_ray(i, j);
-					pixel_colour += ray_colour(r, max_bounces, world);
-				}
-
-				colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
-#endif
-				}
-			);
-			scanlinesRemainingAtomic--;
-#else
-			std::clog << "\rScanlines remaining: " << scanlinesRemainingAtomic << "                             \r" << std::flush;
-			for (int i = 0; i < image_width; i++) {
-				colour pixel_colour = colour(0.0f);
-
-				for (int sample = 0; sample < samples_per_pixel; sample++) {
-					ray r = get_ray(i, j);
-					pixel_colour += ray_colour(r, max_bounces, world);
-				}
-
-				colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
-			}
-			scanlinesRemainingAtomic--;
-#endif
-
-		});
-#else
-		for (int j = 0; j < image_height; j++) {
-			std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-
-			for (int i = 0; i < image_width; i++) {
-				colour pixel_colour = colour(0.0f);
-				for (int sample = 0; sample < samples_per_pixel; sample++) {
-					ray r = get_ray(i, j);
-					pixel_colour += ray_colour(r, max_bounces, world);
-				}
-				colours[image_width * j + i] = pixel_samples_scale * pixel_colour;
-			}
+				scanlinesRemainingAtomic--;
+			});
+			break;
+		default:
+			std::clog << "Invalid thread mode\r\n";
+			delete[] colours;
+			return;
+			break;
 		}
-#endif
 
 		for (int i = 0; i < image_width * image_height; i++) {
 			WriteColour(std::cout, colours[i]);
 		}
 
 		delete[] colours;
-
-		std::clog << "\rDone.					\n";
 	}
 
 private:

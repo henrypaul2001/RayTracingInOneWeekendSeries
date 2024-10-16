@@ -415,7 +415,7 @@ void FinalWeekScene(hittable_list& world, camera& cam) {
     world = hittable_list(make_shared<bvh_node>(world));
 }
 
-void CornellBoxTwo(hittable_list& world, camera& cam) {
+void CornellBoxTwo(hittable_list& world, camera& cam, hittable_list& importanceList) {
     auto red = make_shared<lambertian>(colour(0.65f, 0.05f, 0.05f));
     auto white = make_shared<lambertian>(colour(0.73f));
     auto green = make_shared<lambertian>(colour(0.12f, 0.45f, 0.15f));
@@ -436,8 +436,8 @@ void CornellBoxTwo(hittable_list& world, camera& cam) {
     world.add(make_shared<quad>(point3(400.0f, 100.0f, 450.0f), vec3(55.0f, 0.0f, -150.0f) * 2.5f, vec3(-100.0f, 400.0f, 0.0f), mirror));
 
     auto ball = hittable_list();
-    ball.add(make_shared<sphere>(point3(277.5f, 50.0f, 110.0f), 40.0f, glass));
-    ball.add(make_shared<sphere>(point3(277.5f, 50.0f, 110.0f), 35.0f, glass));
+    ball.add(make_shared<sphere>(point3(277.5f, 40.0f, 110.0f), 40.0f, glass));
+    //ball.add(make_shared<sphere>(point3(277.5f, 50.0f, 110.0f), 35.0f, glass));
 
     shared_ptr<hittable> ballPrefab = make_shared<hittable_list>(ball);
 
@@ -445,6 +445,11 @@ void CornellBoxTwo(hittable_list& world, camera& cam) {
 
     world.add(make_shared<translate>(ballPrefab, vec3(-125.0f, 0.0f, -100.0f)));
     world.add(make_shared<translate>(ballPrefab, vec3(100.0f, 0.0f, -110.0f)));
+
+    // Importance list
+    auto empty_material = shared_ptr<material>();
+    importanceList.add(make_shared<sphere>(point3(165.0f, 350.0f, 265.0f), 75.0f, empty_material));
+    importanceList.add(make_shared<quad>(point3(400.0f, 100.0f, 450.0f), vec3(55.0f, 0.0f, -150.0f) * 2.5f, vec3(-100.0f, 400.0f, 0.0f), empty_material));
 
     cam.aspect_ratio = 1.0f;
     cam.image_width = 600;
@@ -568,14 +573,14 @@ int main()
     
     CornellBox(world, cam, importance);
 
-    //cam.image_width = 2160;
-    //cam.max_bounces = 100;
-    cam.samples_per_pixel = 250;
+    cam.image_width = 1080;
+    cam.max_bounces = 50;
+    cam.samples_per_pixel = 1000;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     // Render
-    cam.render(world, importance);
+    cam.render(world, importance, 3);
 
     auto end = std::chrono::high_resolution_clock::now();
 
